@@ -60,7 +60,8 @@ const handleLogin = async () => {
 
 <style scoped>
 .login-container {
-  min-height: 100vh;
+  position: fixed;
+  inset: 0; /* ocupa a tela inteira */
   display: flex;
   align-items: center;
   justify-content: center;
