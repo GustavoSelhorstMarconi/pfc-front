@@ -1,4 +1,6 @@
+import { useAuthStore } from '@/stores/auth.store'
 import axios from 'axios'
+import { authService } from '../../modules/auth/service/auth.service'
 import { environment } from '../config/environment'
 
 export const httpClient = axios.create({
@@ -10,10 +12,10 @@ export const httpClient = axios.create({
 })
 
 httpClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
+  const authStore = useAuthStore()
 
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
+  if (authStore.accessToken) {
+    config.headers.Authorization = `Bearer ${authStore.accessToken}`
   }
 
   return config
@@ -21,10 +23,24 @@ httpClient.interceptors.request.use((config) => {
 
 httpClient.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token')
-      window.location.href = '/login'
+  async (error) => {
+    const authStore = useAuthStore()
+
+    if (error.response?.status === 401 && authStore.refreshToken) {
+      try {
+        const tokens = await authService.refresh({
+          refreshToken: authStore.refreshToken,
+        })
+
+        authStore.setTokens(tokens.accessToken, tokens.refreshToken)
+
+        error.config.headers.Authorization = `Bearer ${tokens.accessToken}`
+
+        return httpClient(error.config)
+      } catch {
+        authStore.clearTokens()
+        window.location.href = '/login'
+      }
     }
 
     return Promise.reject(error)
