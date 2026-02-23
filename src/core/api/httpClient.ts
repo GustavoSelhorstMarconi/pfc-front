@@ -1,6 +1,6 @@
 import { useAuthStore } from '@/stores/auth.store'
 import axios from 'axios'
-import { authService } from '../../modules/auth/service/auth.service'
+import { authService } from '../../modules/auth/services/auth.service'
 import { environment } from '../config/environment'
 
 export const httpClient = axios.create({

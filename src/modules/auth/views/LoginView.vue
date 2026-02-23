@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import { useApi } from '@/core/composables/useApi'
+import { useAuthStore } from '@/stores/auth.store'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth.store'
 import { authService } from '../services/auth.service'
-import { useApi } from '@/core/composables/useApi'
 
 const router = useRouter()
 const authStore = useAuthStore()
