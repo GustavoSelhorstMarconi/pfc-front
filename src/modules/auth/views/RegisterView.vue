@@ -8,17 +8,27 @@ import { authService } from '../services/auth.service'
 const router = useRouter()
 const authStore = useAuthStore()
 
+const name = ref('')
 const email = ref('')
 const password = ref('')
+const confirmPassword = ref('')
+const errorMessage = ref('')
 
 const { loading, error, execute, data } = useApi(() =>
-  authService.login({
+  authService.register({
+    name: name.value,
     email: email.value,
     password: password.value,
+    confirmPassword: confirmPassword.value,
   }),
 )
 
-const handleLogin = async () => {
+const handleRegister = async () => {
+  if (password.value !== confirmPassword.value) {
+    errorMessage.value = 'As senhas não coincidem'
+    return
+  }
+
   await execute()
 
   if (data.value) {
@@ -26,16 +36,25 @@ const handleLogin = async () => {
 
     router.push('/')
   }
+
+  if (error.value) {
+    errorMessage.value = error.value.detail || 'Erro ao registrar usuário'
+  }
 }
 </script>
 
 <template>
-  <div class="login-container">
-    <div class="login-card">
-      <h1 class="title">Bem-vindo</h1>
-      <p class="subtitle">Faça login para continuar</p>
+  <div class="register-container">
+    <div class="register-card">
+      <h1 class="title">Criar Conta</h1>
+      <p class="subtitle">Registre-se para acessar o sistema</p>
 
-      <form @submit.prevent="handleLogin" class="form">
+      <form @submit.prevent="handleRegister" class="form">
+        <div class="form-group">
+          <label>Nome</label>
+          <input v-model="name" type="text" placeholder="Seu nome completo" required />
+        </div>
+
         <div class="form-group">
           <label>Email</label>
           <input v-model="email" type="email" placeholder="seu@email.com" required />
@@ -46,22 +65,27 @@ const handleLogin = async () => {
           <input v-model="password" type="password" placeholder="••••••••" required />
         </div>
 
-        <button class="login-button" :disabled="loading">
-          {{ loading ? 'Entrando...' : 'Entrar' }}
+        <div class="form-group">
+          <label>Confirmar Senha</label>
+          <input v-model="confirmPassword" type="password" placeholder="••••••••" required />
+        </div>
+
+        <button class="register-button" :disabled="loading">
+          {{ loading ? 'Registrando...' : 'Registrar' }}
         </button>
 
         <p v-if="error" class="error">
-          {{ error.detail || 'Erro ao fazer login. Verifique suas credenciais e tente novamente.' }}
+          {{ errorMessage }}
         </p>
       </form>
 
-      <p class="link">Não tem uma conta? <router-link to="/register">Registre-se</router-link></p>
+      <p class="link">Já tem uma conta? <router-link to="/login">Faça login</router-link></p>
     </div>
   </div>
 </template>
 
 <style scoped>
-.login-container {
+.register-container {
   position: fixed;
   inset: 0;
   display: flex;
@@ -71,7 +95,7 @@ const handleLogin = async () => {
   font-family: Arial, sans-serif;
 }
 
-.login-card {
+.register-card {
   background: #111827;
   padding: 40px;
   width: 380px;
@@ -118,7 +142,7 @@ input:focus {
   border-color: #3b82f6;
 }
 
-.login-button {
+.register-button {
   width: 100%;
   padding: 12px;
   border-radius: 6px;
@@ -130,11 +154,11 @@ input:focus {
   transition: background 0.2s;
 }
 
-.login-button:hover {
+.register-button:hover {
   background-color: #1d4ed8;
 }
 
-.login-button:disabled {
+.register-button:disabled {
   background-color: #334155;
   cursor: not-allowed;
 }
