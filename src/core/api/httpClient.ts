@@ -1,5 +1,5 @@
 import { useAuthStore } from '@/stores/auth.store'
-import axios from 'axios'
+import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios'
 import { authService } from '../../modules/auth/services/auth.service'
 import { environment } from '../config/environment'
 
@@ -21,12 +21,50 @@ httpClient.interceptors.request.use((config) => {
   return config
 })
 
+let isRefreshing = false
+let failedQueue: {
+  resolve: (token: string) => void
+  reject: (err: unknown) => void
+}[] = []
+
+const processQueue = (error: unknown, token: string | null = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error)
+    } else if (token) {
+      prom.resolve(token)
+    }
+  })
+
+  failedQueue = []
+}
+
 httpClient.interceptors.response.use(
   (response) => response,
-  async (error) => {
+  async (error: AxiosError) => {
     const authStore = useAuthStore()
+    const originalRequest = error.config as InternalAxiosRequestConfig & {
+      _retry?: boolean
+    }
 
-    if (error.response?.status === 401 && authStore.refreshToken) {
+    if (error.response?.status === 401 && !originalRequest._retry && authStore.refreshToken) {
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({
+            resolve: (token: string) => {
+              if (originalRequest.headers) {
+                originalRequest.headers.Authorization = `Bearer ${token}`
+              }
+              resolve(httpClient(originalRequest))
+            },
+            reject,
+          })
+        })
+      }
+
+      originalRequest._retry = true
+      isRefreshing = true
+
       try {
         const tokens = await authService.refresh({
           refreshToken: authStore.refreshToken,
@@ -34,12 +72,22 @@ httpClient.interceptors.response.use(
 
         authStore.setTokens(tokens.accessToken, tokens.refreshToken)
 
-        error.config.headers.Authorization = `Bearer ${tokens.accessToken}`
+        processQueue(null, tokens.accessToken)
 
-        return httpClient(error.config)
-      } catch {
+        if (originalRequest.headers) {
+          originalRequest.headers.Authorization = `Bearer ${tokens.accessToken}`
+        }
+
+        return httpClient(originalRequest)
+      } catch (refreshError) {
+        processQueue(refreshError, null)
+
         authStore.clearTokens()
         window.location.href = '/login'
+
+        return Promise.reject(refreshError)
+      } finally {
+        isRefreshing = false
       }
     }
 
