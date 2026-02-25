@@ -8,17 +8,17 @@ export interface ErrorResponse {
   type: string
 }
 
-export function useApi<T>(apiCall: () => Promise<T>) {
+export function useApi<T, P = void>(apiCall: (params: P) => Promise<T>) {
   const loading = ref(false)
   const error = ref<ErrorResponse | null>(null)
   const data = ref<T | null>(null)
 
-  const execute = async () => {
+  const execute = async (params: P) => {
     loading.value = true
     error.value = null
 
     try {
-      data.value = await apiCall()
+      data.value = await apiCall(params)
     } catch (err: unknown) {
       const axiosError = err as AxiosError<ErrorResponse>
 

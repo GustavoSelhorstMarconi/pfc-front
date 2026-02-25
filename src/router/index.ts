@@ -1,5 +1,6 @@
 import LoginView from '@/modules/auth/views/LoginView.vue'
 import RegisterView from '@/modules/auth/views/RegisterView.vue'
+import CategoriesView from '@/modules/categories/views/CategoriesView.vue'
 import { useAuthStore } from '@/stores/auth.store'
 import DashboardView from '@/views/DashboardView.vue'
 import { createRouter, createWebHistory } from 'vue-router'
@@ -35,7 +36,7 @@ const router = createRouter({
         {
           path: 'categories',
           name: 'categories',
-          component: DashboardView,
+          component: CategoriesView,
         },
         {
           path: 'transactions',

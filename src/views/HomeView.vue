@@ -126,6 +126,7 @@ const toggleSidebar = () => {
   display: flex;
   min-height: 100vh;
   margin: 0;
+  width: 100%;
 }
 
 .sidebar {
@@ -227,6 +228,7 @@ const toggleSidebar = () => {
   overflow-y: auto;
   padding: 1rem;
   min-width: 0;
+  width: 100%;
 }
 
 @media (max-width: 768px) {
