@@ -10,6 +10,7 @@ export interface UpdateCategoryRequest {
   name: string
   color: string
   icon?: string
+  isActive: boolean
 }
 
 export interface CategoryResponse {

@@ -24,7 +24,7 @@ export const categoryService = {
   },
 
   async deactivate(id: string) {
-    const { data } = await httpClient.delete<CategoryResponse>(`${BASE_URL}/${id}`)
+    const { data } = await httpClient.delete<void>(`${BASE_URL}/${id}`)
     return data
   },
 }

@@ -11,7 +11,7 @@ html,
 body,
 #app {
   height: 100%;
-  width: 100%;
+  width: 100vw;
   margin: 0;
   padding: 0;
 }

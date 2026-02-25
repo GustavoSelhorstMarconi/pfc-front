@@ -3,18 +3,40 @@
     <h1>Categorias</h1>
     <button class="add-button" @click="showModal = true">Adicionar Nova Categoria</button>
     <div class="categories-grid">
-      <div
-        v-for="category in categories"
-        :key="category.id"
-        class="category-card"
-        :style="{ backgroundColor: category.color }"
-      >
-        <h3>{{ category.name }}</h3>
-        <p>{{ category.type === 0 ? 'Receita' : 'Despesa' }}</p>
-        <button class="edit-button">Editar</button>
-      </div>
+      <template v-if="loading">
+        <div v-for="i in 6" :key="i" class="skeleton-card">
+          <div class="skeleton-title"></div>
+          <div class="skeleton-text"></div>
+          <div class="skeleton-button"></div>
+        </div>
+      </template>
+
+      <template v-else>
+        <div
+          v-for="category in categories"
+          :key="category.id"
+          class="category-card"
+          :style="{ backgroundColor: category.color }"
+        >
+          <h3>{{ category.name }}</h3>
+          <div class="category-meta">
+            <p>{{ category.type === 0 ? 'Receita' : 'Despesa' }}</p>
+            <span class="status-badge" :class="category.isActive ? 'active' : 'inactive'">
+              {{ category.isActive ? 'Ativa' : 'Inativa' }}
+            </span>
+          </div>
+          <div class="card-actions">
+            <button class="edit-button" @click="editCategory(category)">Editar</button>
+          </div>
+        </div>
+      </template>
     </div>
-    <CategoryModal :show="showModal" @close="showModal = false" @save="handleSave" />
+    <CategoryModal
+      :show="showModal"
+      :category="selectedCategory"
+      @close="showModal = false"
+      @save="handleSave"
+    />
   </div>
 </template>
 
@@ -31,8 +53,13 @@ import type {
 
 const categories = ref<CategoryResponse[]>([])
 const showModal = ref(false)
+const selectedCategory = ref<CategoryResponse | null>(null)
 
-const { execute: getCategories, data } = useApi<CategoryResponse[]>(() => categoryService.get())
+const {
+  execute: getCategories,
+  data,
+  loading,
+} = useApi<CategoryResponse[]>(() => categoryService.get())
 const { execute: createCategory, data: createdCategory } = useApi<
   CategoryResponse,
   CreateCategoryRequest
@@ -47,7 +74,7 @@ const handleSave = async (form: CreateCategoryRequest | UpdateCategoryRequest) =
     await updateCategory(form)
 
     if (updatedCategory.value) {
-      await getCategories()
+      await handleGetCategories()
     }
   } else {
     await createCategory(form)
@@ -56,6 +83,8 @@ const handleSave = async (form: CreateCategoryRequest | UpdateCategoryRequest) =
       await handleGetCategories()
     }
   }
+
+  selectedCategory.value = null
 }
 
 onMounted(async () => {
@@ -68,6 +97,11 @@ const handleGetCategories = async () => {
   if (data.value) {
     categories.value = data.value
   }
+}
+
+const editCategory = (category: CategoryResponse) => {
+  selectedCategory.value = category
+  showModal.value = true
 }
 </script>
 
@@ -104,6 +138,7 @@ h1 {
   flex-wrap: wrap;
   gap: 20px;
   width: 100%;
+  overflow: hidden;
 }
 
 .category-card {
@@ -125,18 +160,114 @@ h1 {
   margin: 0 0 20px 0;
 }
 
-.edit-button {
+.category-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.category-meta p {
+  margin: 0;
+  font-weight: bold;
+}
+
+.status-badge {
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 20px;
+}
+
+.status-badge.active {
+  background-color: rgba(34, 197, 94, 0.9);
+  color: white;
+}
+
+.status-badge.inactive {
+  background-color: rgba(239, 68, 68, 0.9);
+  color: white;
+}
+
+.edit-button,
+.delete-button {
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid white;
   background-color: rgba(255, 255, 255, 0.2);
   color: white;
-  border: 1px solid white;
-  padding: 8px 16px;
-  cursor: pointer;
-  align-self: flex-start;
-  border-radius: 4px;
-  transition: background 0.2s;
+}
+
+.edit-button {
+  padding: 0 16px;
+}
+
+.delete-button {
+  width: 36px;
+  padding: 0;
 }
 
 .edit-button:hover {
   background-color: rgba(255, 255, 255, 0.3);
+}
+
+.card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.delete-button:hover {
+  background-color: #ef4444;
+  border-color: #ef4444;
+}
+
+.skeleton-card {
+  width: 280px;
+  padding: 20px;
+  border-radius: 8px;
+  background: #1f2937;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.skeleton-title .skeleton-text,
+.skeleton-button {
+  background: linear-gradient(90deg, #374151 25%, #4b5563 37%, #374151 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+  border-radius: 6px;
+}
+
+.skeleton-title {
+  height: 20px;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.skeleton-text {
+  height: 16px;
+  width: 40%;
+  margin-bottom: 20px;
+}
+
+.skeleton-button {
+  height: 36px;
+  width: 100px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
 }
 </style>

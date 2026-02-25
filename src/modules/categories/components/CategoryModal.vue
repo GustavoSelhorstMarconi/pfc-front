@@ -14,22 +14,25 @@
             <option value="1">Despesa</option>
           </select>
         </div>
+        <div v-if="category" class="form-group status-group">
+          <label>Status:</label>
+
+          <div class="toggle-container">
+            <span :class="{ active: form.isActive }">
+              {{ form.isActive ? 'Ativa' : 'Inativa' }}
+            </span>
+
+            <label class="switch">
+              <input type="checkbox" v-model="form.isActive" />
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
         <div class="form-group">
           <label for="color">Cor:</label>
           <div class="color-input-group">
-            <input
-              id="color"
-              @input="form.color = ($event.target as HTMLInputElement).value"
-              type="color"
-              class="color-picker"
-            />
-            <input
-              :value="form.color"
-              @input="form.color = ($event.target as HTMLInputElement).value"
-              type="text"
-              placeholder="#000000"
-              class="color-hex"
-            />
+            <input id="color" v-model="form.color" type="color" class="color-picker" />
+            <input v-model="form.color" type="text" placeholder="#000000" class="color-hex" />
           </div>
         </div>
         <div class="modal-actions">
@@ -50,7 +53,7 @@ import type {
 } from '../types/category.types'
 
 interface Props {
-  category?: CategoryResponse
+  category?: CategoryResponse | null
   show: boolean
 }
 
@@ -65,6 +68,7 @@ const form = ref({
   name: '',
   type: 0,
   color: '#ffffff',
+  isActive: true,
 })
 
 const closeModal = () => {
@@ -88,15 +92,15 @@ watch(
         name: newCategory.name,
         type: newCategory.type,
         color: newCategory.color,
+        isActive: newCategory.isActive,
       }
-      console.log('Form updated with category:', form.value)
     } else {
       form.value = {
         name: '',
         type: 0,
         color: '#ffffff',
+        isActive: true,
       }
-      console.log('Form reset to default')
     }
   },
   { immediate: true },
@@ -110,6 +114,7 @@ watch(
         name: '',
         type: 0,
         color: '#ffffff',
+        isActive: true,
       }
     }
   },
@@ -209,6 +214,67 @@ select:focus {
   justify-content: flex-end;
   gap: 10px;
   margin-top: 20px;
+}
+
+.status-group {
+  margin-top: 10px;
+}
+
+.toggle-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.toggle-container span {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.toggle-container span.active {
+  color: #22c55e;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: #374151;
+  transition: 0.3s;
+  border-radius: 24px;
+}
+
+.slider:before {
+  content: '';
+  position: absolute;
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+.switch input:checked + .slider {
+  background-color: #22c55e;
+}
+
+.switch input:checked + .slider:before {
+  transform: translateX(20px);
 }
 
 button {
