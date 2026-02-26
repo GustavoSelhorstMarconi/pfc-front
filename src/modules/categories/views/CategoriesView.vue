@@ -43,6 +43,7 @@
 <script setup lang="ts">
 import { useApi } from '@/core/composables/useApi'
 import { onMounted, ref } from 'vue'
+import { toast } from 'vue-sonner'
 import CategoryModal from '../components/CategoryModal.vue'
 import { categoryService } from '../services/category.service'
 import type {
@@ -59,27 +60,45 @@ const {
   execute: getCategories,
   data,
   loading,
+  error: errorGetCategories,
 } = useApi<CategoryResponse[]>(() => categoryService.get())
-const { execute: createCategory, data: createdCategory } = useApi<
-  CategoryResponse,
-  CreateCategoryRequest
->((category: CreateCategoryRequest) => categoryService.create(category))
-const { execute: updateCategory, data: updatedCategory } = useApi<
-  CategoryResponse,
-  UpdateCategoryRequest
->((category: UpdateCategoryRequest) => categoryService.update(category.id, category))
+const {
+  execute: createCategory,
+  data: createdCategory,
+  error: errorCreateCategory,
+} = useApi<CategoryResponse, CreateCategoryRequest>((category: CreateCategoryRequest) =>
+  categoryService.create(category),
+)
+const {
+  execute: updateCategory,
+  data: updatedCategory,
+  error: errorUpdateCategory,
+} = useApi<CategoryResponse, UpdateCategoryRequest>((category: UpdateCategoryRequest) =>
+  categoryService.update(category.id, category),
+)
 
 const handleSave = async (form: CreateCategoryRequest | UpdateCategoryRequest) => {
   if ('id' in form) {
     await updateCategory(form)
 
-    if (updatedCategory.value) {
+    if (errorUpdateCategory.value) {
+      toast.error(
+        'Erro ao atualizar categoria: ' +
+          (errorUpdateCategory.value?.detail ?? 'Erro desconhecido'),
+      )
+    } else if (updatedCategory.value) {
+      toast.success('Categoria atualizada com sucesso!')
       await handleGetCategories()
     }
   } else {
     await createCategory(form)
 
-    if (createdCategory.value) {
+    if (errorCreateCategory.value) {
+      toast.error(
+        'Erro ao criar categoria: ' + (errorCreateCategory.value?.detail ?? 'Erro desconhecido'),
+      )
+    } else if (createdCategory.value) {
+      toast.success('Categoria criada com sucesso!')
       await handleGetCategories()
     }
   }
@@ -96,6 +115,12 @@ const handleGetCategories = async () => {
 
   if (data.value) {
     categories.value = data.value
+  }
+
+  if (errorGetCategories.value) {
+    toast.error(
+      'Erro ao carregar categorias: ' + (errorGetCategories.value?.detail ?? 'Erro desconhecido'),
+    )
   }
 }
 

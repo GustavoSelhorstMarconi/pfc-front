@@ -45,6 +45,7 @@
 <script setup lang="ts">
 import { useApi } from '@/core/composables/useApi'
 import { onMounted, ref } from 'vue'
+import { toast } from 'vue-sonner'
 import AccountModal from '../components/AccountModal.vue'
 import { accountService } from '../services/account.service'
 import type {
@@ -62,28 +63,46 @@ const {
   execute: getAccounts,
   data,
   loading,
+  error: errorGetAccounts,
 } = useApi<AccountResponse[]>(() => accountService.get())
-const { execute: createAccount, data: createdAccount } = useApi<
-  AccountResponse,
-  CreateAccountRequest
->((account: CreateAccountRequest) => accountService.create(account))
-const { execute: updateAccount, data: updatedAccount } = useApi<
-  AccountResponse,
-  UpdateAccountRequest
->((account: UpdateAccountRequest) => accountService.update(account.id, account))
+const {
+  execute: createAccount,
+  data: createdAccount,
+  error: errorCreateAccount,
+} = useApi<AccountResponse, CreateAccountRequest>((account: CreateAccountRequest) =>
+  accountService.create(account),
+)
+const {
+  execute: updateAccount,
+  data: updatedAccount,
+  error: errorUpdateAccount,
+} = useApi<AccountResponse, UpdateAccountRequest>((account: UpdateAccountRequest) =>
+  accountService.update(account.id, account),
+)
 
 const handleSave = async (form: CreateAccountRequest | UpdateAccountRequest) => {
   if ('id' in form) {
     await updateAccount(form)
 
-    if (updatedAccount.value) {
+    if (errorUpdateAccount.value) {
+      toast.error(
+        'Erro ao atualizar conta: ' + (errorUpdateAccount.value?.detail ?? 'Erro desconhecido'),
+      )
+    } else if (updatedAccount.value) {
+      toast.success('Conta atualizada com sucesso!')
       await handleGetAccounts()
     }
   } else {
     await createAccount(form)
 
-    if (createdAccount.value) {
+    if (errorCreateAccount.value) {
+      toast.error(
+        'Erro ao criar conta: ' + (errorCreateAccount.value?.detail ?? 'Erro desconhecido'),
+      )
+    } else if (createdAccount.value) {
+      toast.success('Conta criada com sucesso!')
       await handleGetAccounts()
+      showModal.value = false
     }
   }
 
@@ -118,6 +137,12 @@ onMounted(async () => {
 
 const handleGetAccounts = async () => {
   await getAccounts()
+
+  if (errorGetAccounts.value) {
+    toast.error(
+      'Erro ao carregar contas: ' + (errorGetAccounts.value?.detail ?? 'Erro desconhecido'),
+    )
+  }
 
   if (data.value) {
     accounts.value = data.value
