@@ -22,9 +22,4 @@ export const categoryService = {
     const { data } = await httpClient.put<CategoryResponse>(`${BASE_URL}/${id}`, payload)
     return data
   },
-
-  async deactivate(id: string) {
-    const { data } = await httpClient.delete<void>(`${BASE_URL}/${id}`)
-    return data
-  },
 }

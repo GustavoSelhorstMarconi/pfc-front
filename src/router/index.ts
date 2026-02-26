@@ -1,3 +1,4 @@
+import AccountsView from '@/modules/accounts/views/AccountsView.vue'
 import LoginView from '@/modules/auth/views/LoginView.vue'
 import RegisterView from '@/modules/auth/views/RegisterView.vue'
 import CategoriesView from '@/modules/categories/views/CategoriesView.vue'
@@ -46,7 +47,7 @@ const router = createRouter({
         {
           path: 'accounts',
           name: 'accounts',
-          component: DashboardView,
+          component: AccountsView,
         },
         {
           path: 'debts',
