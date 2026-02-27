@@ -2,6 +2,7 @@ import AccountsView from '@/modules/accounts/views/AccountsView.vue';
 import LoginView from '@/modules/auth/views/LoginView.vue';
 import RegisterView from '@/modules/auth/views/RegisterView.vue';
 import CategoriesView from '@/modules/categories/views/CategoriesView.vue';
+import DebtsView from '@/modules/debts/views/DebtsView.vue';
 import GoalsView from '@/modules/goals/views/GoalsView.vue';
 import { useAuthStore } from '@/stores/auth.store';
 import DashboardView from '@/views/DashboardView.vue';
@@ -53,7 +54,7 @@ const router = createRouter({
         {
           path: 'debts',
           name: 'debts',
-          component: DashboardView,
+          component: DebtsView,
         },
         {
           path: 'goals',

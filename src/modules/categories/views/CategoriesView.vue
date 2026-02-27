@@ -4,20 +4,12 @@
     <button class="add-button" @click="openCreateModal">Adicionar Nova Categoria</button>
     <div class="categories-grid">
       <template v-if="loading">
-        <div v-for="i in 6" :key="i" class="skeleton-card">
-          <div class="skeleton-title"></div>
-          <div class="skeleton-text"></div>
-          <div class="skeleton-button"></div>
-        </div>
+        <SkeletonCard v-for="i in 6" :key="i" />
       </template>
 
       <template v-else>
-        <div
-          v-for="category in categories"
-          :key="category.id"
-          class="category-card"
-          :style="{ backgroundColor: category.color }"
-        >
+        <div v-for="category in categories" :key="category.id" class="category-card"
+          :style="{ backgroundColor: category.color }">
           <h3>{{ category.name }}</h3>
           <div class="category-meta">
             <p>{{ category.type === 0 ? 'Receita' : 'Despesa' }}</p>
@@ -31,108 +23,104 @@
         </div>
       </template>
     </div>
-    <CategoryModal
-      :show="showModal"
-      :category="selectedCategory"
-      @close="showModal = false"
-      @save="handleSave"
-    />
+    <CategoryModal :show="showModal" :category="selectedCategory" @close="showModal = false" @save="handleSave" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { useApi } from '@/core/composables/useApi'
-import { onMounted, ref } from 'vue'
-import { toast } from 'vue-sonner'
-import CategoryModal from '../components/CategoryModal.vue'
-import { categoryService } from '../services/category.service'
+import { useApi } from '@/core/composables/useApi';
+import SkeletonCard from '@/shared/components/SkeletonCard.vue';
+import { onMounted, ref } from 'vue';
+import { toast } from 'vue-sonner';
+import CategoryModal from '../components/CategoryModal.vue';
+import { categoryService } from '../services/category.service';
 import type {
   CategoryResponse,
   CreateCategoryRequest,
   UpdateCategoryRequest,
-} from '../types/category.types'
+} from '../types/category.types';
 
-const categories = ref<CategoryResponse[]>([])
-const showModal = ref(false)
-const selectedCategory = ref<CategoryResponse | null>(null)
+const categories = ref<CategoryResponse[]>([]);
+const showModal = ref(false);
+const selectedCategory = ref<CategoryResponse | null>(null);
 
 const {
   execute: getCategories,
   data,
   loading,
   error: errorGetCategories,
-} = useApi<CategoryResponse[]>(() => categoryService.get())
+} = useApi<CategoryResponse[]>(() => categoryService.get());
 const {
   execute: createCategory,
   data: createdCategory,
   error: errorCreateCategory,
 } = useApi<CategoryResponse, CreateCategoryRequest>((category: CreateCategoryRequest) =>
   categoryService.create(category),
-)
+);
 const {
   execute: updateCategory,
   data: updatedCategory,
   error: errorUpdateCategory,
 } = useApi<CategoryResponse, UpdateCategoryRequest>((category: UpdateCategoryRequest) =>
   categoryService.update(category.id, category),
-)
+);
 
 const handleSave = async (form: CreateCategoryRequest | UpdateCategoryRequest) => {
   if ('id' in form) {
-    await updateCategory(form)
+    await updateCategory(form);
 
     if (errorUpdateCategory.value) {
       toast.error(
         'Erro ao atualizar categoria: ' +
-          (errorUpdateCategory.value?.detail ?? 'Erro desconhecido'),
-      )
+        (errorUpdateCategory.value?.detail ?? 'Erro desconhecido'),
+      );
     } else if (updatedCategory.value) {
-      toast.success('Categoria atualizada com sucesso!')
-      await handleGetCategories()
+      toast.success('Categoria atualizada com sucesso!');
+      await handleGetCategories();
     }
   } else {
-    await createCategory(form)
+    await createCategory(form);
 
     if (errorCreateCategory.value) {
       toast.error(
         'Erro ao criar categoria: ' + (errorCreateCategory.value?.detail ?? 'Erro desconhecido'),
-      )
+      );
     } else if (createdCategory.value) {
-      toast.success('Categoria criada com sucesso!')
-      await handleGetCategories()
+      toast.success('Categoria criada com sucesso!');
+      await handleGetCategories();
     }
   }
 
-  selectedCategory.value = null
-}
+  selectedCategory.value = null;
+};
 
 onMounted(async () => {
-  await handleGetCategories()
-})
+  await handleGetCategories();
+});
 
 const handleGetCategories = async () => {
-  await getCategories()
+  await getCategories();
 
   if (data.value) {
-    categories.value = data.value
+    categories.value = data.value;
   }
 
   if (errorGetCategories.value) {
     toast.error(
       'Erro ao carregar categorias: ' + (errorGetCategories.value?.detail ?? 'Erro desconhecido'),
-    )
+    );
   }
-}
+};
 
 const openCreateModal = () => {
-  selectedCategory.value = null
-  showModal.value = true
-}
+  selectedCategory.value = null;
+  showModal.value = true;
+};
 
 const editCategory = (category: CategoryResponse) => {
-  selectedCategory.value = category
-  showModal.value = true
-}
+  selectedCategory.value = category;
+  showModal.value = true;
+};
 </script>
 
 <style scoped>
@@ -255,49 +243,5 @@ h1 {
 .delete-button:hover {
   background-color: #ef4444;
   border-color: #ef4444;
-}
-
-.skeleton-card {
-  width: 280px;
-  padding: 20px;
-  border-radius: 8px;
-  background: #1f2937;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.skeleton-title .skeleton-text,
-.skeleton-button {
-  background: linear-gradient(90deg, #374151 25%, #4b5563 37%, #374151 63%);
-  background-size: 400% 100%;
-  animation: shimmer 1.4s ease infinite;
-  border-radius: 6px;
-}
-
-.skeleton-title {
-  height: 20px;
-  width: 100%;
-  margin-bottom: 12px;
-}
-
-.skeleton-text {
-  height: 16px;
-  width: 40%;
-  margin-bottom: 20px;
-}
-
-.skeleton-button {
-  height: 36px;
-  width: 100px;
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: 100% 0;
-  }
-  100% {
-    background-position: -100% 0;
-  }
 }
 </style>

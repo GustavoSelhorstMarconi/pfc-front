@@ -4,11 +4,7 @@
     <button class="add-button" @click="openCreateModal">Adicionar Nova Conta</button>
     <div class="accounts-grid">
       <template v-if="loading">
-        <div v-for="i in 6" :key="i" class="skeleton-card">
-          <div class="skeleton-title"></div>
-          <div class="skeleton-text"></div>
-          <div class="skeleton-button"></div>
-        </div>
+        <SkeletonCard v-for="i in 6" :key="i" />
       </template>
 
       <template v-else>
@@ -33,131 +29,127 @@
         </div>
       </template>
     </div>
-    <AccountModal
-      :show="showModal"
-      :account="selectedAccount"
-      @close="showModal = false"
-      @save="handleSave"
-    />
+    <AccountModal :show="showModal" :account="selectedAccount" @close="showModal = false" @save="handleSave" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { useApi } from '@/core/composables/useApi'
-import { onMounted, ref } from 'vue'
-import { toast } from 'vue-sonner'
-import AccountModal from '../components/AccountModal.vue'
-import { accountService } from '../services/account.service'
+import { useApi } from '@/core/composables/useApi';
+import SkeletonCard from '@/shared/components/SkeletonCard.vue';
+import { onMounted, ref } from 'vue';
+import { toast } from 'vue-sonner';
+import AccountModal from '../components/AccountModal.vue';
+import { accountService } from '../services/account.service';
 import type {
   AccountResponse,
   AccountType,
   CreateAccountRequest,
   UpdateAccountRequest,
-} from '../types/account.types'
+} from '../types/account.types';
 
-const accounts = ref<AccountResponse[]>([])
-const showModal = ref(false)
-const selectedAccount = ref<AccountResponse | null>(null)
+const accounts = ref<AccountResponse[]>([]);
+const showModal = ref(false);
+const selectedAccount = ref<AccountResponse | null>(null);
 
 const {
   execute: getAccounts,
   data,
   loading,
   error: errorGetAccounts,
-} = useApi<AccountResponse[]>(() => accountService.get())
+} = useApi<AccountResponse[]>(() => accountService.get());
 const {
   execute: createAccount,
   data: createdAccount,
   error: errorCreateAccount,
 } = useApi<AccountResponse, CreateAccountRequest>((account: CreateAccountRequest) =>
   accountService.create(account),
-)
+);
 const {
   execute: updateAccount,
   data: updatedAccount,
   error: errorUpdateAccount,
 } = useApi<AccountResponse, UpdateAccountRequest>((account: UpdateAccountRequest) =>
   accountService.update(account.id, account),
-)
+);
 
 const handleSave = async (form: CreateAccountRequest | UpdateAccountRequest) => {
   if ('id' in form) {
-    await updateAccount(form)
+    await updateAccount(form);
 
     if (errorUpdateAccount.value) {
       toast.error(
         'Erro ao atualizar conta: ' + (errorUpdateAccount.value?.detail ?? 'Erro desconhecido'),
-      )
+      );
     } else if (updatedAccount.value) {
-      toast.success('Conta atualizada com sucesso!')
-      await handleGetAccounts()
+      toast.success('Conta atualizada com sucesso!');
+      await handleGetAccounts();
     }
   } else {
-    await createAccount(form)
+    await createAccount(form);
 
     if (errorCreateAccount.value) {
       toast.error(
         'Erro ao criar conta: ' + (errorCreateAccount.value?.detail ?? 'Erro desconhecido'),
-      )
+      );
     } else if (createdAccount.value) {
-      toast.success('Conta criada com sucesso!')
-      await handleGetAccounts()
-      showModal.value = false
+      toast.success('Conta criada com sucesso!');
+      await handleGetAccounts();
+      showModal.value = false;
     }
   }
 
-  selectedAccount.value = null
-}
+  selectedAccount.value = null;
+};
 
 const formatCurrency = (value: number) => {
   return new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL',
-  }).format(value)
-}
+  }).format(value);
+};
 
 const getAccountTypeText = (type: AccountType) => {
   switch (type) {
     case 0:
-      return 'Corrente'
+      return 'Corrente';
     case 1:
-      return 'Carteira'
+      return 'Carteira';
     case 2:
-      return 'Cartão de crédito'
+      return 'Cartão de crédito';
     case 3:
-      return 'Investimentos'
+      return 'Investimentos';
     default:
-      return 'Desconecido'
+      return 'Desconecido';
   }
-}
+};
 
 onMounted(async () => {
-  await handleGetAccounts()
-})
+  await handleGetAccounts();
+});
 
 const handleGetAccounts = async () => {
-  await getAccounts()
+  await getAccounts();
 
   if (errorGetAccounts.value) {
     toast.error(
       'Erro ao carregar contas: ' + (errorGetAccounts.value?.detail ?? 'Erro desconhecido'),
-    )
+    );
   }
 
   if (data.value) {
-    accounts.value = data.value
+    accounts.value = data.value;
   }
-}
+};
 
 const openCreateModal = () => {
-  selectedAccount.value = null
-  showModal.value = true
-}
+  selectedAccount.value = null;
+  showModal.value = true;
+};
 
 const editAccount = (account: AccountResponse) => {
-  selectedAccount.value = account
-  showModal.value = true
-}
+  selectedAccount.value = account;
+  showModal.value = true;
+};
 </script>
 
 <style scoped>
@@ -281,49 +273,5 @@ h1 {
 .delete-button:hover {
   background-color: #ef4444;
   border-color: #ef4444;
-}
-
-.skeleton-card {
-  width: 280px;
-  padding: 20px;
-  border-radius: 8px;
-  background: #1f2937;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.skeleton-title .skeleton-text,
-.skeleton-button {
-  background: linear-gradient(90deg, #374151 25%, #4b5563 37%, #374151 63%);
-  background-size: 400% 100%;
-  animation: shimmer 1.4s ease infinite;
-  border-radius: 6px;
-}
-
-.skeleton-title {
-  height: 20px;
-  width: 100%;
-  margin-bottom: 12px;
-}
-
-.skeleton-text {
-  height: 16px;
-  width: 40%;
-  margin-bottom: 20px;
-}
-
-.skeleton-button {
-  height: 36px;
-  width: 100px;
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: 100% 0;
-  }
-  100% {
-    background-position: -100% 0;
-  }
 }
 </style>

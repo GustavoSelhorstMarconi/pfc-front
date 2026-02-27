@@ -6,12 +6,7 @@
 
     <div class="goals-grid">
       <template v-if="loading">
-        <div v-for="i in 6" :key="i" class="skeleton-card">
-          <div class="skeleton-title"></div>
-          <div class="skeleton-text"></div>
-          <div class="skeleton-text"></div>
-          <div class="skeleton-button"></div>
-        </div>
+        <SkeletonCard v-for="i in 6" :key="i" />
       </template>
 
       <template v-else>
@@ -38,108 +33,104 @@
       </template>
     </div>
 
-    <GoalModal
-      :show="showModal"
-      :goal="selectedGoal"
-      @close="showModal = false"
-      @save="handleSave"
-    />
+    <GoalModal :show="showModal" :goal="selectedGoal" @close="showModal = false" @save="handleSave" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { useApi } from '@/core/composables/useApi'
-import { onMounted, ref } from 'vue'
-import { toast } from 'vue-sonner'
-import GoalModal from '../components/GoalModal.vue'
-import { goalService } from '../services/goal.service'
-import type { CreateGoalRequest, GoalResponse, UpdateGoalRequest } from '../types/goal.types'
+import { useApi } from '@/core/composables/useApi';
+import SkeletonCard from '@/shared/components/SkeletonCard.vue';
+import { onMounted, ref } from 'vue';
+import { toast } from 'vue-sonner';
+import GoalModal from '../components/GoalModal.vue';
+import { goalService } from '../services/goal.service';
+import type { CreateGoalRequest, GoalResponse, UpdateGoalRequest } from '../types/goal.types';
 
-const goals = ref<GoalResponse[]>([])
-const showModal = ref(false)
-const selectedGoal = ref<GoalResponse | null>(null)
+const goals = ref<GoalResponse[]>([]);
+const showModal = ref(false);
+const selectedGoal = ref<GoalResponse | null>(null);
 
 const {
   execute: getGoals,
   data,
   loading,
   error: errorGetGoals,
-} = useApi<GoalResponse[]>(() => goalService.get())
+} = useApi<GoalResponse[]>(() => goalService.get());
 
 const {
   execute: createGoal,
   data: createdGoal,
   error: errorCreateGoal,
-} = useApi<GoalResponse, CreateGoalRequest>((goal) => goalService.create(goal))
+} = useApi<GoalResponse, CreateGoalRequest>((goal) => goalService.create(goal));
 
 const {
   execute: updateGoal,
   data: updatedGoal,
   error: errorUpdateGoal,
-} = useApi<GoalResponse, UpdateGoalRequest>((goal) => goalService.update(goal.id, goal))
+} = useApi<GoalResponse, UpdateGoalRequest>((goal) => goalService.update(goal.id, goal));
 
 const handleGetGoals = async () => {
-  await getGoals()
+  await getGoals();
 
   if (data.value) {
-    goals.value = data.value
+    goals.value = data.value;
   }
 
   if (errorGetGoals.value) {
-    toast.error('Erro ao carregar metas: ' + (errorGetGoals.value?.detail ?? 'Erro desconhecido'))
+    toast.error('Erro ao carregar metas: ' + (errorGetGoals.value?.detail ?? 'Erro desconhecido'));
   }
-}
+};
 
 const handleSave = async (form: CreateGoalRequest | UpdateGoalRequest) => {
   if ('id' in form) {
-    await updateGoal(form)
+    await updateGoal(form);
 
     if (errorUpdateGoal.value) {
       toast.error(
         'Erro ao atualizar meta: ' + (errorUpdateGoal.value?.detail ?? 'Erro desconhecido'),
-      )
+      );
     } else if (updatedGoal.value) {
-      toast.success('Meta atualizada com sucesso!')
-      await handleGetGoals()
+      toast.success('Meta atualizada com sucesso!');
+      await handleGetGoals();
     }
   } else {
-    await createGoal(form)
+    await createGoal(form);
 
     if (errorCreateGoal.value) {
-      toast.error('Erro ao criar meta: ' + (errorCreateGoal.value?.detail ?? 'Erro desconhecido'))
+      toast.error('Erro ao criar meta: ' + (errorCreateGoal.value?.detail ?? 'Erro desconhecido'));
     } else if (createdGoal.value) {
-      toast.success('Meta criada com sucesso!')
-      await handleGetGoals()
+      toast.success('Meta criada com sucesso!');
+      await handleGetGoals();
     }
   }
 
-  selectedGoal.value = null
-}
+  selectedGoal.value = null;
+};
 
 const openCreateModal = () => {
-  selectedGoal.value = null
-  showModal.value = true
-}
+  selectedGoal.value = null;
+  showModal.value = true;
+};
 
 const editGoal = (goal: GoalResponse) => {
-  selectedGoal.value = goal
-  showModal.value = true
-}
+  selectedGoal.value = goal;
+  showModal.value = true;
+};
 
 const formatCurrency = (value: number) => {
   return new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL',
-  }).format(value)
-}
+  }).format(value);
+};
 
 const formatDate = (date: string) => {
-  return date.split('-').reverse().join('/')
-}
+  return date.split('-').reverse().join('/');
+};
 
 onMounted(async () => {
-  await handleGetGoals()
-})
+  await handleGetGoals();
+});
 </script>
 
 <style scoped>
@@ -175,7 +166,7 @@ h1 {
   width: 280px;
   border-radius: 8px;
   padding: 20px;
-  background-color: #1f2937;
+  background-color: #153f57;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
   display: flex;
   flex-direction: column;
