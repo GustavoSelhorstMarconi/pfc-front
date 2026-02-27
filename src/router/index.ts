@@ -1,11 +1,12 @@
-import AccountsView from '@/modules/accounts/views/AccountsView.vue'
-import LoginView from '@/modules/auth/views/LoginView.vue'
-import RegisterView from '@/modules/auth/views/RegisterView.vue'
-import CategoriesView from '@/modules/categories/views/CategoriesView.vue'
-import { useAuthStore } from '@/stores/auth.store'
-import DashboardView from '@/views/DashboardView.vue'
-import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import AccountsView from '@/modules/accounts/views/AccountsView.vue';
+import LoginView from '@/modules/auth/views/LoginView.vue';
+import RegisterView from '@/modules/auth/views/RegisterView.vue';
+import CategoriesView from '@/modules/categories/views/CategoriesView.vue';
+import GoalsView from '@/modules/goals/views/GoalsView.vue';
+import { useAuthStore } from '@/stores/auth.store';
+import DashboardView from '@/views/DashboardView.vue';
+import { createRouter, createWebHistory } from 'vue-router';
+import HomeView from '../views/HomeView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -57,7 +58,7 @@ const router = createRouter({
         {
           path: 'goals',
           name: 'goals',
-          component: DashboardView,
+          component: GoalsView,
         },
         {
           path: 'recurrences',
@@ -72,18 +73,18 @@ const router = createRouter({
       ],
     },
   ],
-})
+});
 
 router.beforeEach((to, from, next) => {
-  const authStore = useAuthStore()
+  const authStore = useAuthStore();
 
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    next('/login')
+    next('/login');
   } else if ((to.path === '/login' || to.path === '/register') && authStore.isAuthenticated) {
-    next('/')
+    next('/');
   } else {
-    next()
+    next();
   }
-})
+});
 
-export default router
+export default router;

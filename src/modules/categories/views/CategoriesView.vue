@@ -1,7 +1,7 @@
 <template>
   <div class="categories-view">
     <h1>Categorias</h1>
-    <button class="add-button" @click="showModal = true">Adicionar Nova Categoria</button>
+    <button class="add-button" @click="openCreateModal">Adicionar Nova Categoria</button>
     <div class="categories-grid">
       <template v-if="loading">
         <div v-for="i in 6" :key="i" class="skeleton-card">
@@ -122,6 +122,11 @@ const handleGetCategories = async () => {
       'Erro ao carregar categorias: ' + (errorGetCategories.value?.detail ?? 'Erro desconhecido'),
     )
   }
+}
+
+const openCreateModal = () => {
+  selectedCategory.value = null
+  showModal.value = true
 }
 
 const editCategory = (category: CategoryResponse) => {

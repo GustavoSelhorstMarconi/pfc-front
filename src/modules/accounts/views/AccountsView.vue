@@ -1,7 +1,7 @@
 <template>
   <div class="accounts-view">
     <h1>Contas</h1>
-    <button class="add-button" @click="showModal = true">Adicionar Nova Conta</button>
+    <button class="add-button" @click="openCreateModal">Adicionar Nova Conta</button>
     <div class="accounts-grid">
       <template v-if="loading">
         <div v-for="i in 6" :key="i" class="skeleton-card">
@@ -147,6 +147,11 @@ const handleGetAccounts = async () => {
   if (data.value) {
     accounts.value = data.value
   }
+}
+
+const openCreateModal = () => {
+  selectedAccount.value = null
+  showModal.value = true
 }
 
 const editAccount = (account: AccountResponse) => {

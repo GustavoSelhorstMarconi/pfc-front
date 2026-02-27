@@ -1,36 +1,31 @@
 <template>
   <div v-if="show" class="modal-overlay" @click="closeModal">
     <div class="modal-content" @click.stop>
-      <h2>{{ account ? 'Editar Conta' : 'Nova Conta' }}</h2>
+      <h2>{{ goal ? 'Editar Meta' : 'Nova Meta' }}</h2>
 
       <form @submit.prevent="handleSubmit">
         <div class="form-group">
-          <label for="name">Nome:</label>
-          <input id="name" v-model="form.name" type="text" required />
+          <label>Nome:</label>
+          <input v-model="form.name" type="text" required />
         </div>
 
         <div class="form-group">
-          <label for="type">Tipo:</label>
-          <select id="type" v-model="form.type" required>
-            <option :value="0">Conta Corrente</option>
-            <option :value="1">Carteira</option>
-            <option :value="2">Cartão de Crédito</option>
-            <option :value="3">Investimento</option>
-          </select>
-        </div>
-
-        <div v-if="!account" class="form-group">
-          <label for="initialBalance">Saldo Inicial:</label>
+          <label>Valor da Meta:</label>
           <input
-            id="initialBalance"
-            v-model.number="form.initialBalance"
-            type="number"
-            step="0.01"
+            :value="formattedTargetAmount"
+            @input="handleCurrencyInput"
+            type="text"
+            inputmode="numeric"
             required
           />
         </div>
 
-        <div v-if="account" class="form-group status-group">
+        <div class="form-group">
+          <label>Prazo:</label>
+          <input v-model="form.deadline" type="date" />
+        </div>
+
+        <div v-if="goal" class="form-group status-group">
           <label>Status:</label>
 
           <div class="toggle-container">
@@ -55,15 +50,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-import type {
-  AccountResponse,
-  CreateAccountRequest,
-  UpdateAccountRequest,
-} from '../types/account.types'
+import { computed, ref, watch } from 'vue'
+import type { CreateGoalRequest, GoalResponse, UpdateGoalRequest } from '../types/goal.types'
 
 interface Props {
-  account?: AccountResponse | null
+  goal?: GoalResponse | null
   show: boolean
 }
 
@@ -71,13 +62,13 @@ const props = defineProps<Props>()
 
 const emit = defineEmits<{
   close: []
-  save: [form: CreateAccountRequest | UpdateAccountRequest]
+  save: [form: CreateGoalRequest | UpdateGoalRequest]
 }>()
 
 const form = ref({
   name: '',
-  type: 0,
-  initialBalance: 0,
+  targetAmount: 0,
+  deadline: '',
   isActive: true,
 })
 
@@ -86,43 +77,56 @@ const closeModal = () => {
 }
 
 const handleSubmit = () => {
-  if (props.account) {
-    const updateRequest: UpdateAccountRequest = {
-      id: props.account.id,
-      name: form.value.name,
-      type: form.value.type,
-      isActive: form.value.isActive,
-    }
-
-    emit('save', updateRequest)
+  if (props.goal) {
+    emit('save', {
+      id: props.goal.id,
+      ...form.value,
+    })
   } else {
-    const createRequest: CreateAccountRequest = {
-      name: form.value.name,
-      type: form.value.type,
-      initialBalance: form.value.initialBalance,
-    }
-
-    emit('save', createRequest)
+    emit('save', form.value)
   }
 
   closeModal()
 }
 
+const formattedTargetAmount = computed(() => {
+  return formatCurrency(form.value.targetAmount)
+})
+
+const formatCurrency = (value: number) => {
+  if (!value) return ''
+
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  }).format(value)
+}
+
+const handleCurrencyInput = (event: Event) => {
+  const input = event.target as HTMLInputElement
+
+  const numericValue = input.value.replace(/\D/g, '')
+
+  const value = Number(numericValue) / 100
+
+  form.value.targetAmount = value
+}
+
 watch(
-  () => props.account,
-  (newAccount) => {
-    if (newAccount) {
+  () => props.goal,
+  (newGoal) => {
+    if (newGoal) {
       form.value = {
-        name: newAccount.name,
-        type: newAccount.type,
-        initialBalance: newAccount.initialBalance,
-        isActive: newAccount.isActive,
+        name: newGoal.name,
+        targetAmount: newGoal.targetAmount,
+        deadline: newGoal.deadline ? newGoal.deadline.toString().substring(0, 10) : '',
+        isActive: newGoal.isActive,
       }
     } else {
       form.value = {
         name: '',
-        type: 0,
-        initialBalance: 0,
+        targetAmount: 0,
+        deadline: '',
         isActive: true,
       }
     }
@@ -136,8 +140,8 @@ watch(
     if (!newShow) {
       form.value = {
         name: '',
-        type: 0,
-        initialBalance: 0,
+        targetAmount: 0,
+        deadline: '',
         isActive: true,
       }
     }
@@ -199,6 +203,37 @@ select {
 
 input:focus,
 select:focus {
+  border-color: #3b82f6;
+}
+
+.color-input-group {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.color-picker {
+  width: 50px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  background-color: #1f2937;
+  cursor: pointer;
+}
+
+.color-hex {
+  flex: 1;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #334155;
+  background-color: #1f2937;
+  color: white;
+  outline: none;
+  transition: border 0.2s;
+}
+
+.color-hex:focus {
   border-color: #3b82f6;
 }
 
