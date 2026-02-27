@@ -166,7 +166,7 @@ h1 {
   width: 280px;
   border-radius: 14px;
   padding: 22px;
-  background: linear-gradient(145deg, #1e273b, #0f1e3f);
+  background: linear-gradient(145deg, #1e293b, #0f172a);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
   display: flex;
   flex-direction: column;
