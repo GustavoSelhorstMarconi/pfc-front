@@ -4,6 +4,7 @@ import RegisterView from '@/modules/auth/views/RegisterView.vue';
 import CategoriesView from '@/modules/categories/views/CategoriesView.vue';
 import DebtsView from '@/modules/debts/views/DebtsView.vue';
 import GoalsView from '@/modules/goals/views/GoalsView.vue';
+import RecurrencesView from '@/modules/recurrences/views/RecurrencesView.vue';
 import { useAuthStore } from '@/stores/auth.store';
 import DashboardView from '@/views/DashboardView.vue';
 import { createRouter, createWebHistory } from 'vue-router';
@@ -64,7 +65,7 @@ const router = createRouter({
         {
           path: 'recurrences',
           name: 'recurrences',
-          component: DashboardView,
+          component: RecurrencesView,
         },
         {
           path: 'profile',

@@ -185,13 +185,19 @@ h1 {
 
 .debt-card {
   width: 280px;
-  border-radius: 8px;
-  padding: 20px;
-  background-color: #381818;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  border-radius: 14px;
+  padding: 22px;
+  background: linear-gradient(145deg, #1e273b, #0f1e3f);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 18px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.debt-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
 }
 
 .status-badge {
@@ -207,47 +213,87 @@ h1 {
   color: white;
 }
 
-.debt-values {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-bottom: 10px;
-}
-
-.total-group {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.value-line {
-  margin: 0;
-  font-size: 14px;
-}
-
-.remaining {
-  color: #f87171;
-}
-
-.interest-badge {
-  background: linear-gradient(135deg, #f59e0b, #f97316);
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-  color: white;
-  white-space: nowrap;
-}
-
-.due-date {
-  font-size: 13px;
-  color: #cbd5e1;
-  margin-bottom: 8px;
-}
-
 .status-badge.inactive {
   background-color: rgba(239, 68, 68, 0.9);
   color: white;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.type-badge {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.type-badge.income {
+  background-color: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.type-badge.expense {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.amount {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.amount.income {
+  color: #22c55e;
+}
+
+.amount.expense {
+  color: #ef4444;
+}
+
+.recurrence-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.label {
+  font-size: 11px;
+  color: #94a3b8;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.value {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.status-badge {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.status-badge.active {
+  background-color: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.status-badge.inactive {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
 }
 
 .card-actions {
@@ -255,12 +301,18 @@ h1 {
 }
 
 .edit-button {
-  height: 36px;
-  padding: 0 16px;
-  border-radius: 6px;
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
   cursor: pointer;
-  border: 1px solid white;
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: #2563eb;
   color: white;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.edit-button:hover {
+  background-color: #1d4ed8;
 }
 </style>

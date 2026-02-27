@@ -164,13 +164,19 @@ h1 {
 
 .goal-card {
   width: 280px;
-  border-radius: 8px;
-  padding: 20px;
-  background-color: #153f57;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  border-radius: 14px;
+  padding: 22px;
+  background: linear-gradient(145deg, #1e273b, #0f1e3f);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 18px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.goal-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
 }
 
 .status-badge {
@@ -191,17 +197,101 @@ h1 {
   color: white;
 }
 
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.type-badge {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.type-badge.income {
+  background-color: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.type-badge.expense {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.amount {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.amount.income {
+  color: #22c55e;
+}
+
+.amount.expense {
+  color: #ef4444;
+}
+
+.recurrence-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.label {
+  font-size: 11px;
+  color: #94a3b8;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.value {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.status-badge {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.status-badge.active {
+  background-color: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.status-badge.inactive {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
 .card-actions {
   margin-top: auto;
 }
 
 .edit-button {
-  height: 36px;
-  padding: 0 16px;
-  border-radius: 6px;
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
   cursor: pointer;
-  border: 1px solid white;
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: #2563eb;
   color: white;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.edit-button:hover {
+  background-color: #1d4ed8;
 }
 </style>

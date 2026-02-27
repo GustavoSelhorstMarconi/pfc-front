@@ -9,7 +9,7 @@
 
       <template v-else>
         <div v-for="category in categories" :key="category.id" class="category-card"
-          :style="{ backgroundColor: category.color }">
+          :style="getGradient(category.color)">
           <h3>{{ category.name }}</h3>
           <div class="category-meta">
             <p>{{ category.type === 0 ? 'Receita' : 'Despesa' }}</p>
@@ -121,6 +121,41 @@ const editCategory = (category: CategoryResponse) => {
   selectedCategory.value = category;
   showModal.value = true;
 };
+
+const adjustColor = (color: string, amount: number) => {
+  let usePound = false;
+
+  if (color[0] === "#") {
+    color = color.slice(1);
+    usePound = true;
+  }
+
+  const num = parseInt(color, 16);
+
+  let r = (num >> 16) + amount;
+  let g = ((num >> 8) & 0x00ff) + amount;
+  let b = (num & 0x0000ff) + amount;
+
+  r = Math.max(Math.min(255, r), 0);
+  g = Math.max(Math.min(255, g), 0);
+  b = Math.max(Math.min(255, b), 0);
+
+  return (
+    (usePound ? "#" : "") +
+    (r << 16 | g << 8 | b)
+      .toString(16)
+      .padStart(6, "0")
+  );
+};
+
+const getGradient = (color: string) => {
+  const lighter = adjustColor(color, 40);
+  const darker = adjustColor(color, -40);
+
+  return {
+    background: `linear-gradient(135deg, ${lighter}, ${darker})`
+  };
+};
 </script>
 
 <style scoped>
@@ -136,112 +171,116 @@ h1 {
 }
 
 .add-button {
-  background-color: #2563eb;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
   color: white;
   border: none;
   padding: 10px 20px;
-  font-size: 16px;
+  font-size: 15px;
   cursor: pointer;
-  margin-bottom: 20px;
-  border-radius: 6px;
-  transition: background 0.2s;
+  margin-bottom: 30px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
 }
 
 .add-button:hover {
-  background-color: #1d4ed8;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.4);
 }
 
 .categories-grid {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 20px;
-  width: 100%;
-  overflow: hidden;
 }
 
 .category-card {
-  width: 280px;
-  border-radius: 8px;
-  padding: 20px;
+  border-radius: 14px;
+  padding: 22px;
   color: white;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.25s ease;
+}
+
+.category-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.25);
+  z-index: 0;
+}
+
+.category-card>* {
+  position: relative;
+  z-index: 1;
+}
+
+.category-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5);
 }
 
 .category-card h3 {
-  margin: 0 0 10px 0;
-}
-
-.category-card p {
-  margin: 0 0 20px 0;
+  margin: 0 0 14px 0;
+  font-size: 18px;
+  font-weight: 600;
 }
 
 .category-meta {
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: space-between;
   margin-bottom: 20px;
 }
 
 .category-meta p {
   margin: 0;
-  font-weight: bold;
+  font-weight: 600;
+  font-size: 14px;
+  opacity: 0.9;
 }
 
 .status-badge {
-  padding: 4px 10px;
-  font-size: 12px;
-  font-weight: 600;
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 700;
   border-radius: 20px;
+  letter-spacing: 0.5px;
 }
 
 .status-badge.active {
-  background-color: rgba(34, 197, 94, 0.9);
+  background-color: #22c55e;
   color: white;
 }
 
 .status-badge.inactive {
-  background-color: rgba(239, 68, 68, 0.9);
+  background-color: #ef4444;
   color: white;
-}
-
-.edit-button,
-.delete-button {
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: 1px solid white;
-  background-color: rgba(255, 255, 255, 0.2);
-  color: white;
-}
-
-.edit-button {
-  padding: 0 16px;
-}
-
-.delete-button {
-  width: 36px;
-  padding: 0;
-}
-
-.edit-button:hover {
-  background-color: rgba(255, 255, 255, 0.3);
 }
 
 .card-actions {
   display: flex;
-  gap: 8px;
+  justify-content: center;
   margin-top: auto;
 }
 
-.delete-button:hover {
-  background-color: #ef4444;
-  border-color: #ef4444;
+.edit-button {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background-color: rgba(37, 99, 235, 0.15);
+  color: white;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.edit-button:hover {
+  background-color: #1d4ed8;
 }
 </style>
