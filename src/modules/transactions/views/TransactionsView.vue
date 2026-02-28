@@ -198,7 +198,6 @@ const handleSave = async (
 
     if (errorCreate.value) {
       toast.error('Erro ao criar transação: ' + (errorCreate.value?.detail ?? 'Erro desconhecido'));
-
     } else if (createdTransaction.value) {
       toast.success('Transação criada!');
       showModal.value = false;
