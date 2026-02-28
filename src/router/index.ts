@@ -5,6 +5,7 @@ import CategoriesView from '@/modules/categories/views/CategoriesView.vue';
 import DebtsView from '@/modules/debts/views/DebtsView.vue';
 import GoalsView from '@/modules/goals/views/GoalsView.vue';
 import RecurrencesView from '@/modules/recurrences/views/RecurrencesView.vue';
+import TransactionsView from '@/modules/transactions/views/TransactionsView.vue';
 import { useAuthStore } from '@/stores/auth.store';
 import DashboardView from '@/views/DashboardView.vue';
 import { createRouter, createWebHistory } from 'vue-router';
@@ -45,7 +46,7 @@ const router = createRouter({
         {
           path: 'transactions',
           name: 'transactions',
-          component: DashboardView,
+          component: TransactionsView,
         },
         {
           path: 'accounts',

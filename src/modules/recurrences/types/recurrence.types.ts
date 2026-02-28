@@ -1,3 +1,5 @@
+import type { TransactionType } from "@/modules/transactions/types/transaction.types";
+
 export interface CreateRecurrenceRequest {
   accountId: string;
   categoryId: string;
@@ -18,11 +20,6 @@ export interface UpdateRecurrenceRequest extends CreateRecurrenceRequest {
 export interface RecurrenceResponse extends CreateRecurrenceRequest {
   id: string;
   isActive: boolean;
-}
-
-export enum TransactionType {
-  Income,
-  Expense
 }
 
 export enum RecurrenceFrequency {

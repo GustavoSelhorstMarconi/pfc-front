@@ -150,7 +150,7 @@ const handleSave = async (
     await updateRecurrence(form);
 
     if (errorUpdate.value) {
-      toast.error('Erro ao atualizar recorrência');
+      toast.error('Erro ao atualizar recorrência: ' + (errorUpdate.value?.detail ?? 'Erro desconhecido'));
     } else if (updatedRecurrence.value) {
       toast.success('Recorrência atualizada!');
       await handleGet();
@@ -159,7 +159,7 @@ const handleSave = async (
     await createRecurrence(form);
 
     if (errorCreate.value) {
-      toast.error('Erro ao criar recorrência');
+      toast.error('Erro ao criar recorrência: ' + (errorCreate.value?.detail ?? 'Erro desconhecido'));
     } else if (createdRecurrence.value) {
       toast.success('Recorrência criada!');
       await handleGet();
@@ -223,9 +223,11 @@ const handleGetCategories = async () => {
 };
 
 onMounted(async () => {
-  await handleGet();
-  await handleGetAccounts();
-  await handleGetCategories();
+  await Promise.all([
+    handleGet(),
+    handleGetAccounts(),
+    handleGetCategories(),
+  ]);
 });
 
 </script>
