@@ -69,6 +69,17 @@
           <input v-model="form.endDate" type="date" />
         </div>
 
+        <div class="toggle-container full-width">
+          <span :class="{ active: (form as UpdateRecurrenceRequest).generatesTransaction }">
+            Gera transação:
+          </span>
+
+          <label class="switch">
+            <input type="checkbox" v-model="(form as UpdateRecurrenceRequest).generatesTransaction" required />
+            <span class="slider"></span>
+          </label>
+        </div>
+
         <div v-if="recurrence" class="form-group status-group full-width">
           <label>Status:</label>
 
@@ -130,6 +141,7 @@ const form = ref<CreateRecurrenceRequest | UpdateRecurrenceRequest>({
   startDate: '',
   endDate: '',
   isActive: true,
+  generatesTransaction: false,
 });
 
 const closeModal = () => emit('close');

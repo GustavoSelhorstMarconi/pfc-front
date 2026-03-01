@@ -10,6 +10,7 @@ export interface CreateRecurrenceRequest {
   interval: number;
   startDate: string;
   endDate?: string;
+  generatesTransaction: boolean;
 }
 
 export interface UpdateRecurrenceRequest extends CreateRecurrenceRequest {

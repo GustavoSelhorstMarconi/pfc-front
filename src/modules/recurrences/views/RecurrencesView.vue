@@ -19,9 +19,15 @@
                 {{ recurrence.description || 'Sem descrição' }}
               </h3>
 
-              <span class="type-badge" :class="recurrence.type === 0 ? 'income' : 'expense'">
-                {{ formatType(recurrence.type) }}
-              </span>
+              <div class="card-subtitle">
+                <span class="type-badge" :class="recurrence.type === 0 ? 'income' : 'expense'">
+                  {{ formatType(recurrence.type) }}
+                </span>
+
+                <span class="status-badge" :class="recurrence.generatesTransaction ? 'active' : 'inactive'">
+                  {{ recurrence.generatesTransaction ? 'Gera Transação' : 'Não Gera Transação' }}
+                </span>
+              </div>
             </div>
 
             <span class="status-badge" :class="recurrence.isActive ? 'active' : 'inactive'">
@@ -288,6 +294,11 @@ h1 {
   font-size: 16px;
   font-weight: 600;
   margin-bottom: 6px;
+}
+
+.card-subtitle {
+  display: flex;
+  gap: 8px;
 }
 
 .type-badge {
