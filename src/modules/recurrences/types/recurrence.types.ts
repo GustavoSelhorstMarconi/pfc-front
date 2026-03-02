@@ -23,6 +23,15 @@ export interface RecurrenceResponse extends CreateRecurrenceRequest {
   isActive: boolean;
 }
 
+export interface PendingRecurrenceOcurrenceDto {
+  recurrenceId: string;
+  description: string;
+  occurrenceDate: string;
+  amount: number;
+  accountId: string;
+  categoryId: string;
+}
+
 export enum RecurrenceFrequency {
   Daily,
   Weekly,

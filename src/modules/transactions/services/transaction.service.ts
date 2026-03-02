@@ -1,5 +1,5 @@
 import { httpClient } from '@/core/api/httpClient';
-import type { CreateTransactionRequest, TransactionResponse, UpdateTransactionRequest } from '../types/transaction.types';
+import type { CreateTransactionRequest, GenerateTransactionFromRecurrenceRequest, TransactionResponse, UpdateTransactionRequest } from '../types/transaction.types';
 const BASE_URL = '/transactions';
 
 export const transactionService = {
@@ -22,4 +22,9 @@ export const transactionService = {
     const { data } = await httpClient.delete(`${BASE_URL}/${id}`);
     return data;
   },
+
+  async generateFromRecurrences(payload: GenerateTransactionFromRecurrenceRequest[]) {
+    const { data } = await httpClient.post<TransactionResponse[]>(`${BASE_URL}/from-recurrences`, payload);
+    return data;
+  }
 };

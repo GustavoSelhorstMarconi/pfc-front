@@ -4,6 +4,7 @@ import RegisterView from '@/modules/auth/views/RegisterView.vue';
 import CategoriesView from '@/modules/categories/views/CategoriesView.vue';
 import DebtsView from '@/modules/debts/views/DebtsView.vue';
 import GoalsView from '@/modules/goals/views/GoalsView.vue';
+import RecurrencesPendingView from '@/modules/recurrences/views/RecurrencesPendingView.vue';
 import RecurrencesView from '@/modules/recurrences/views/RecurrencesView.vue';
 import TransactionsView from '@/modules/transactions/views/TransactionsView.vue';
 import { useAuthStore } from '@/stores/auth.store';
@@ -73,6 +74,11 @@ const router = createRouter({
           name: 'profile',
           component: DashboardView,
         },
+        {
+          path: 'recurrences-pending',
+          name: 'recurrences-pending',
+          component: RecurrencesPendingView
+        }
       ],
     },
   ],

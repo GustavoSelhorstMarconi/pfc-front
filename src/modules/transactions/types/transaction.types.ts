@@ -18,6 +18,11 @@ export interface TransactionResponse extends CreateTransactionRequest {
   isActive: boolean;
 }
 
+export interface GenerateTransactionFromRecurrenceRequest {
+  recurrenceId: string;
+  occurrenceDate: string;
+}
+
 export enum TransactionType {
   Income,
   Expense
