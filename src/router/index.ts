@@ -2,13 +2,13 @@ import AccountsView from '@/modules/accounts/views/AccountsView.vue';
 import LoginView from '@/modules/auth/views/LoginView.vue';
 import RegisterView from '@/modules/auth/views/RegisterView.vue';
 import CategoriesView from '@/modules/categories/views/CategoriesView.vue';
+import DashboardView from '@/modules/dashboards/views/DashboardView.vue';
 import DebtsView from '@/modules/debts/views/DebtsView.vue';
 import GoalsView from '@/modules/goals/views/GoalsView.vue';
 import RecurrencesPendingView from '@/modules/recurrences/views/RecurrencesPendingView.vue';
 import RecurrencesView from '@/modules/recurrences/views/RecurrencesView.vue';
 import TransactionsView from '@/modules/transactions/views/TransactionsView.vue';
 import { useAuthStore } from '@/stores/auth.store';
-import DashboardView from '@/views/DashboardView.vue';
 import { createRouter, createWebHistory } from 'vue-router';
 import HomeView from '../views/HomeView.vue';
 
