@@ -70,11 +70,6 @@ const router = createRouter({
           component: RecurrencesView,
         },
         {
-          path: 'profile',
-          name: 'profile',
-          component: DashboardView,
-        },
-        {
           path: 'recurrences-pending',
           name: 'recurrences-pending',
           component: RecurrencesPendingView

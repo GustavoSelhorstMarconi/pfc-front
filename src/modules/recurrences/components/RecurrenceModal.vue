@@ -106,9 +106,8 @@
 
 <script setup lang="ts">
 import type { AccountResponse } from '@/modules/accounts/types/account.types';
-import { AccountType } from '@/modules/accounts/types/account.types';
 import type { CategoryResponse } from '@/modules/categories/types/category.types';
-import { CategoryType } from '@/modules/categories/types/category.types';
+import { formatAccountType, formatCategoryType, formatCurrency, parseCurrencyInput } from '@/shared/utils/formatters';
 import { computed, ref, watch } from 'vue';
 import type {
   CreateRecurrenceRequest,
@@ -159,42 +158,12 @@ const handleSubmit = () => {
   closeModal();
 };
 
-const formattedAmount = computed(() => {
-  if (!form.value.amount) return '';
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  }).format(form.value.amount);
-});
+const formattedAmount = computed(() =>
+  form.value.amount ? formatCurrency(form.value.amount) : ''
+);
 
 const handleCurrencyInput = (event: Event) => {
-  const input = event.target as HTMLInputElement;
-  const numericValue = input.value.replace(/\D/g, '');
-  form.value.amount = Number(numericValue) / 100;
-};
-
-const formatAccountType = (type: AccountType) => {
-  switch (type) {
-    case 0:
-      return 'Corrente';
-    case 1:
-      return 'Poupança';
-    case 2:
-      return 'Carteira';
-    default:
-      return '';
-  }
-};
-
-const formatCategoryType = (type: CategoryType) => {
-  switch (type) {
-    case 0:
-      return 'Receita';
-    case 1:
-      return 'Despesa';
-    default:
-      return '';
-  }
+  form.value.amount = parseCurrencyInput(event);
 };
 
 watch(

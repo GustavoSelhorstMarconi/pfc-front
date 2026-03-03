@@ -12,7 +12,7 @@
           <h3>{{ account.name }}</h3>
 
           <div class="account-meta">
-            <p>{{ getAccountTypeText(account.type) }}</p>
+            <p>{{ formatAccountType(account.type) }}</p>
 
             <span class="status-badge" :class="account.isActive ? 'active' : 'inactive'">
               {{ account.isActive ? 'Ativa' : 'Inativa' }}
@@ -35,6 +35,7 @@
 
 <script setup lang="ts">
 import { useApi } from '@/core/composables/useApi';
+import { formatAccountType, formatCurrency } from '@/shared/utils/formatters';
 import SkeletonCard from '@/shared/components/SkeletonCard.vue';
 import { onMounted, ref } from 'vue';
 import { toast } from 'vue-sonner';
@@ -42,7 +43,6 @@ import AccountModal from '../components/AccountModal.vue';
 import { accountService } from '../services/account.service';
 import type {
   AccountResponse,
-  AccountType,
   CreateAccountRequest,
   UpdateAccountRequest,
 } from '../types/account.types';
@@ -101,27 +101,6 @@ const handleSave = async (form: CreateAccountRequest | UpdateAccountRequest) => 
   selectedAccount.value = null;
 };
 
-const formatCurrency = (value: number) => {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  }).format(value);
-};
-
-const getAccountTypeText = (type: AccountType) => {
-  switch (type) {
-    case 0:
-      return 'Corrente';
-    case 1:
-      return 'Carteira';
-    case 2:
-      return 'Cartão de crédito';
-    case 3:
-      return 'Investimentos';
-    default:
-      return 'Desconecido';
-  }
-};
 
 onMounted(async () => {
   await handleGetAccounts();

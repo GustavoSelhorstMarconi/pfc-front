@@ -50,6 +50,7 @@
 </template>
 
 <script setup lang="ts">
+import { formatCurrency, parseCurrencyInput } from '@/shared/utils/formatters'
 import { computed, ref, watch } from 'vue'
 import type { CreateGoalRequest, GoalResponse, UpdateGoalRequest } from '../types/goal.types'
 
@@ -89,27 +90,12 @@ const handleSubmit = () => {
   closeModal()
 }
 
-const formattedTargetAmount = computed(() => {
-  return formatCurrency(form.value.targetAmount)
-})
-
-const formatCurrency = (value: number) => {
-  if (!value) return ''
-
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  }).format(value)
-}
+const formattedTargetAmount = computed(() =>
+  form.value.targetAmount ? formatCurrency(form.value.targetAmount) : ''
+)
 
 const handleCurrencyInput = (event: Event) => {
-  const input = event.target as HTMLInputElement
-
-  const numericValue = input.value.replace(/\D/g, '')
-
-  const value = Number(numericValue) / 100
-
-  form.value.targetAmount = value
+  form.value.targetAmount = parseCurrencyInput(event)
 }
 
 watch(

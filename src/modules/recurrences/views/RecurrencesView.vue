@@ -89,6 +89,7 @@ import { accountService } from '@/modules/accounts/services/account.service';
 import type { AccountResponse } from '@/modules/accounts/types/account.types';
 import { categoryService } from '@/modules/categories/services/category.service';
 import type { CategoryResponse } from '@/modules/categories/types/category.types';
+import { formatCurrency, formatDate, formatFrequency, formatTransactionType } from '@/shared/utils/formatters';
 import SkeletonCard from '@/shared/components/SkeletonCard.vue';
 import { onMounted, ref } from 'vue';
 import { toast } from 'vue-sonner';
@@ -185,32 +186,7 @@ const editRecurrence = (recurrence: RecurrenceResponse) => {
   showModal.value = true;
 };
 
-const formatCurrency = (value: number) =>
-  new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  }).format(value);
-
-const formatDate = (date: string) =>
-  date.split('T')[0]?.split('-').reverse().join('/');
-
-const formatType = (type: number) =>
-  type === 0 ? 'Receita' : 'Despesa';
-
-const formatFrequency = (frequency: number) => {
-  switch (frequency) {
-    case 0:
-      return 'Diária';
-    case 1:
-      return 'Semanal';
-    case 2:
-      return 'Mensal';
-    case 3:
-      return 'Anual';
-    default:
-      return '';
-  }
-};
+const formatType = formatTransactionType;
 
 const handleGetAccounts = async () => {
   await getAccounts();

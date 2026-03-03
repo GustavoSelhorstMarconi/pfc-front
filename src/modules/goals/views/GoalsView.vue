@@ -39,6 +39,7 @@
 
 <script setup lang="ts">
 import { useApi } from '@/core/composables/useApi';
+import { formatCurrency, formatDate } from '@/shared/utils/formatters';
 import SkeletonCard from '@/shared/components/SkeletonCard.vue';
 import { onMounted, ref } from 'vue';
 import { toast } from 'vue-sonner';
@@ -117,16 +118,6 @@ const editGoal = (goal: GoalResponse) => {
   showModal.value = true;
 };
 
-const formatCurrency = (value: number) => {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  }).format(value);
-};
-
-const formatDate = (date: string) => {
-  return date.split('-').reverse().join('/');
-};
 
 onMounted(async () => {
   await handleGetGoals();

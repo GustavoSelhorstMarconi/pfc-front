@@ -112,6 +112,7 @@ import { debtService } from '@/modules/debts/services/debt.service';
 import type { DebtResponse } from '@/modules/debts/types/debt.types';
 import { goalService } from '@/modules/goals/services/goal.service';
 import type { GoalResponse } from '@/modules/goals/types/goal.types';
+import { formatCurrency, formatDate, formatTransactionType } from '@/shared/utils/formatters';
 
 const transactions = ref<TransactionResponse[]>([]);
 const showModal = ref(false);
@@ -242,17 +243,7 @@ const getAccountName = (accountId: string) =>
 const getCategoryName = (categoryId: string) =>
   categories.value?.find(c => c.id === categoryId)?.name ?? '—';
 
-const formatCurrency = (value: number) =>
-  new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  }).format(value);
-
-const formatDate = (date: string) =>
-  date?.split('T')[0]?.split('-').reverse().join('/');
-
-const formatType = (type: number) =>
-  type === 0 ? 'Receita' : 'Despesa';
+const formatType = formatTransactionType;
 
 onMounted(async () => {
   await Promise.all([

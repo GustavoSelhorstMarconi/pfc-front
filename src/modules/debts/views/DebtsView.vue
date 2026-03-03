@@ -54,6 +54,7 @@
 
 <script setup lang="ts">
 import { useApi } from '@/core/composables/useApi';
+import { formatCurrency, formatDate, formatInterest } from '@/shared/utils/formatters';
 import SkeletonCard from '@/shared/components/SkeletonCard.vue';
 import { onMounted, ref } from 'vue';
 import { toast } from 'vue-sonner';
@@ -132,22 +133,6 @@ const editDebt = (debt: DebtResponse) => {
   showModal.value = true;
 };
 
-const formatCurrency = (value: number) => {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  }).format(value);
-};
-
-const formatInterest = (value?: number) => {
-  if (value === undefined || value === null) return '';
-
-  return `${value.toFixed(2)}% a.m.`;
-};
-
-const formatDate = (date: string) => {
-  return date.split('-').reverse().join('/');
-};
 
 onMounted(async () => {
   await handleGetDebts();
