@@ -16,6 +16,7 @@ export interface AccountResponse {
   name: string
   type: AccountType
   initialBalance: number
+  currentBalance: number
   isActive: boolean
 }
 

@@ -9,19 +9,29 @@
 
       <template v-else>
         <div v-for="account in accounts" :key="account.id" class="account-card">
-          <h3>{{ account.name }}</h3>
-
-          <div class="account-meta">
-            <p>{{ formatAccountType(account.type) }}</p>
-
+          <div class="card-top">
+            <h3 class="account-name">{{ account.name }}</h3>
             <span class="status-badge" :class="account.isActive ? 'active' : 'inactive'">
               {{ account.isActive ? 'Ativa' : 'Inativa' }}
             </span>
           </div>
 
-          <h3 class="balance">
-            {{ formatCurrency(account.initialBalance) }}
-          </h3>
+          <p class="account-type">{{ formatAccountType(account.type) }}</p>
+
+          <div class="balance-section">
+            <div class="balance-row">
+              <span class="balance-label">Saldo Inicial</span>
+              <span class="balance-value initial">{{ formatCurrency(account.initialBalance) }}</span>
+            </div>
+            <div class="balance-divider" />
+            <div class="balance-row">
+              <span class="balance-label">Saldo Atual</span>
+              <span
+                class="balance-value current"
+                :class="account.currentBalance >= 0 ? 'positive' : 'negative'"
+              >{{ formatCurrency(account.currentBalance) }}</span>
+            </div>
+          </div>
 
           <div class="card-actions">
             <button class="edit-button" @click="editAccount(account)">Editar</button>
@@ -175,7 +185,7 @@ h1 {
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 14px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -184,90 +194,33 @@ h1 {
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
 }
 
-.status-badge {
-  padding: 4px 10px;
-  font-size: 12px;
-  font-weight: 600;
-  border-radius: 20px;
-  width: fit-content;
-}
-
-.status-badge.active {
-  background-color: rgba(34, 197, 94, 0.9);
-  color: white;
-}
-
-.status-badge.inactive {
-  background-color: rgba(239, 68, 68, 0.9);
-  color: white;
-}
-
-.card-header {
+.card-top {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  gap: 8px;
 }
 
-.card-title {
+.account-name {
   font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 6px;
-}
-
-.type-badge {
-  font-size: 11px;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-weight: 600;
-  display: inline-block;
-}
-
-.type-badge.income {
-  background-color: rgba(34, 197, 94, 0.15);
-  color: #22c55e;
-}
-
-.type-badge.expense {
-  background-color: rgba(239, 68, 68, 0.15);
-  color: #ef4444;
-}
-
-.amount {
-  font-size: 22px;
   font-weight: 700;
+  color: #cbd5e1;
+  margin: 0;
 }
 
-.amount.income {
-  color: #22c55e;
-}
-
-.amount.expense {
-  color: #ef4444;
-}
-
-.recurrence-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-}
-
-.label {
-  font-size: 11px;
-  color: #94a3b8;
-  display: block;
-  margin-bottom: 2px;
-}
-
-.value {
-  font-size: 14px;
-  font-weight: 500;
+.account-type {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
 }
 
 .status-badge {
   font-size: 11px;
-  padding: 4px 10px;
+  padding: 3px 10px;
   border-radius: 20px;
   font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .status-badge.active {
@@ -278,6 +231,50 @@ h1 {
 .status-badge.inactive {
   background-color: rgba(239, 68, 68, 0.15);
   color: #ef4444;
+}
+
+.balance-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background-color: rgba(15, 23, 42, 0.5);
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.balance-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.balance-label {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.balance-value {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.balance-value.initial {
+  color: #94a3b8;
+}
+
+.balance-value.current.positive {
+  color: #22c55e;
+}
+
+.balance-value.current.negative {
+  color: #ef4444;
+}
+
+.balance-divider {
+  height: 1px;
+  background-color: #1e293b;
 }
 
 .card-actions {

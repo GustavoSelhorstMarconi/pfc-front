@@ -1,7 +1,9 @@
 export interface DashboardSummaryResponse {
   totalBalance: number;
+  totalInvestment: number;
   monthIncome: number;
   monthExpense: number;
+  monthInvestment: number;
   monthResult: number;
 }
 

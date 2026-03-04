@@ -34,6 +34,13 @@
           </p>
         </div>
 
+        <div class="dashboard-card total-investment">
+          <h3>Saldo Total de Investimentos</h3>
+          <p class="amount total">
+            {{ formatCurrency(dashboardSummary?.totalInvestment || 0) }}
+          </p>
+        </div>
+
         <div class="dashboard-card income">
           <h3>Receitas do Período</h3>
           <p class="amount income">
@@ -53,6 +60,13 @@
           <p class="amount"
             :class="dashboardSummary?.monthResult && dashboardSummary?.monthResult >= 0 ? 'positive' : 'negative'">
             {{ formatCurrency(dashboardSummary?.monthResult || 0) }}
+          </p>
+        </div>
+
+        <div class="dashboard-card month-investment">
+          <h3>Receitas do Investimento no Período</h3>
+          <p class="amount income">
+            {{ formatCurrency(dashboardSummary?.monthInvestment || 0) }}
           </p>
         </div>
       </template>
@@ -296,12 +310,20 @@ h1 {
   color: #3b82f6;
 }
 
+.amount.total-investment {
+  color: #709de6;
+}
+
 .amount.income {
   color: #22c55e;
 }
 
 .amount.expense {
   color: #ef4444;
+}
+
+.amount.month-investment {
+  color: #16a34a;
 }
 
 .amount.positive {
