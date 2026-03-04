@@ -21,13 +21,8 @@
 
         <div v-if="!account" class="form-group">
           <label for="initialBalance">Saldo Inicial:</label>
-          <input
-            id="initialBalance"
-            v-model.number="form.initialBalance"
-            type="number"
-            step="0.01"
-            required
-          />
+          <input id="initialBalance" type="text" inputmode="numeric" :value="formattedInitialBalante"
+            @input="handleCurrencyInput" required />
         </div>
 
         <div v-if="account" class="form-group status-group">
@@ -55,35 +50,44 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { formatCurrency, parseCurrencyInput } from '@/shared/utils/formatters';
+import { computed, ref, watch } from 'vue';
 import type {
   AccountResponse,
   CreateAccountRequest,
   UpdateAccountRequest,
-} from '../types/account.types'
+} from '../types/account.types';
 
 interface Props {
-  account?: AccountResponse | null
-  show: boolean
+  account?: AccountResponse | null;
+  show: boolean;
 }
 
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 
 const emit = defineEmits<{
-  close: []
-  save: [form: CreateAccountRequest | UpdateAccountRequest]
-}>()
+  close: [];
+  save: [form: CreateAccountRequest | UpdateAccountRequest];
+}>();
 
 const form = ref({
   name: '',
   type: 0,
   initialBalance: 0,
   isActive: true,
-})
+});
 
 const closeModal = () => {
-  emit('close')
-}
+  emit('close');
+};
+
+const formattedInitialBalante = computed(() =>
+  form.value.initialBalance ? formatCurrency(form.value.initialBalance) : ''
+);
+
+const handleCurrencyInput = (event: Event) => {
+  form.value.initialBalance = parseCurrencyInput(event);
+};
 
 const handleSubmit = () => {
   if (props.account) {
@@ -92,21 +96,21 @@ const handleSubmit = () => {
       name: form.value.name,
       type: form.value.type,
       isActive: form.value.isActive,
-    }
+    };
 
-    emit('save', updateRequest)
+    emit('save', updateRequest);
   } else {
     const createRequest: CreateAccountRequest = {
       name: form.value.name,
       type: form.value.type,
       initialBalance: form.value.initialBalance,
-    }
+    };
 
-    emit('save', createRequest)
+    emit('save', createRequest);
   }
 
-  closeModal()
-}
+  closeModal();
+};
 
 watch(
   () => props.account,
@@ -117,18 +121,18 @@ watch(
         type: newAccount.type,
         initialBalance: newAccount.initialBalance,
         isActive: newAccount.isActive,
-      }
+      };
     } else {
       form.value = {
         name: '',
         type: 0,
         initialBalance: 0,
         isActive: true,
-      }
+      };
     }
   },
   { immediate: true },
-)
+);
 
 watch(
   () => props.show,
@@ -139,10 +143,10 @@ watch(
         type: 0,
         initialBalance: 0,
         isActive: true,
-      }
+      };
     }
   },
-)
+);
 </script>
 
 <style scoped>
@@ -262,11 +266,11 @@ select:focus {
   border-radius: 50%;
 }
 
-.switch input:checked + .slider {
+.switch input:checked+.slider {
   background-color: #22c55e;
 }
 
-.switch input:checked + .slider:before {
+.switch input:checked+.slider:before {
   transform: translateX(20px);
 }
 

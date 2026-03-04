@@ -4,31 +4,26 @@
       <h2>{{ debt ? 'Editar Dívida' : 'Nova Dívida' }}</h2>
 
       <form @submit.prevent="handleSubmit">
-        <!-- Nome -->
         <div class="form-group">
           <label>Nome:</label>
           <input v-model="form.name" type="text" required />
         </div>
 
-        <!-- Valor Total -->
         <div class="form-group">
           <label>Valor Total:</label>
           <input :value="formattedTotalAmount" @input="handleCurrencyInput" type="text" inputmode="numeric" required />
         </div>
 
-        <!-- Taxa de Juros -->
         <div class="form-group">
           <label>Taxa de Juros (% ao mês):</label>
           <input v-model.number="form.interestRate" type="number" step="0.01" min="0" placeholder="Ex: 2.5" />
         </div>
 
-        <!-- Data de Vencimento -->
         <div class="form-group">
           <label>Data de Vencimento:</label>
           <input v-model="form.dueDate" type="date" />
         </div>
 
-        <!-- Status (somente edição) -->
         <div v-if="debt" class="form-group status-group">
           <label>Status:</label>
 

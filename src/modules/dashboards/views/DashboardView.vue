@@ -50,10 +50,8 @@
 
         <div class="dashboard-card result">
           <h3>Resultado do Período</h3>
-          <p
-            class="amount"
-            :class="dashboardSummary?.monthResult && dashboardSummary?.monthResult >= 0 ? 'positive' : 'negative'"
-          >
+          <p class="amount"
+            :class="dashboardSummary?.monthResult && dashboardSummary?.monthResult >= 0 ? 'positive' : 'negative'">
             {{ formatCurrency(dashboardSummary?.monthResult || 0) }}
           </p>
         </div>
@@ -75,33 +73,45 @@
         <CategoryDonutChart title="Despesas por Categoria" :data="categoryTotals?.expenseTotals ?? []" />
       </template>
     </div>
+
+    <div class="monthly-table-section">
+      <SkeletonCard v-if="loadingTransactionsByMonth" class="table-skeleton" />
+      <MonthlyTransactionsTable v-else :data="transactionsByMonth ?? []" />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useApi } from '@/core/composables/useApi'
-import { formatCurrency, formatDateToInput } from '@/shared/utils/formatters'
-import SkeletonCard from '@/shared/components/SkeletonCard.vue'
-import { onMounted, ref } from 'vue'
-import { toast } from 'vue-sonner'
-import CategoryDonutChart from '../components/CategoryDonutChart.vue'
-import IncomeExpenseChart from '../components/IncomeExpenseChart.vue'
-import { dashboardService } from '../services/dashboard.service'
-import type { CategoryTotalsResponse, DashboardFilter, DashboardSummaryResponse, MonthlyIncomeExpenseResponse } from '../types/dashboard.types'
+import { useApi } from '@/core/composables/useApi';
+import SkeletonCard from '@/shared/components/SkeletonCard.vue';
+import { formatCurrency, formatDateToInput } from '@/shared/utils/formatters';
+import { onMounted, ref } from 'vue';
+import { toast } from 'vue-sonner';
+import CategoryDonutChart from '../components/CategoryDonutChart.vue';
+import IncomeExpenseChart from '../components/IncomeExpenseChart.vue';
+import MonthlyTransactionsTable from '../components/MonthlyTransactionsTable.vue';
+import { dashboardService } from '../services/dashboard.service';
+import type {
+  CategoryTotalsResponse,
+  DashboardFilter,
+  DashboardSummaryResponse,
+  MonthlyIncomeExpenseResponse,
+  TransactionsByMonthResponse,
+} from '../types/dashboard.types';
 
-const today = new Date()
-const initialFrom = new Date(today)
-initialFrom.setMonth(initialFrom.getMonth() - 1)
+const today = new Date();
+const initialFrom = new Date(today);
+initialFrom.setMonth(initialFrom.getMonth() - 4);
 
-const fromDate = ref(formatDateToInput(initialFrom))
-const toDate = ref(formatDateToInput(today))
+const fromDate = ref(formatDateToInput(initialFrom));
+const toDate = ref(formatDateToInput(today));
 
 const {
   execute: getDashboardSummary,
   data: dashboardSummary,
   error: errorSummary,
   loading: loadingSummary,
-} = useApi<DashboardSummaryResponse, DashboardFilter>((filter) => dashboardService.getSummary(filter))
+} = useApi<DashboardSummaryResponse, DashboardFilter>((filter) => dashboardService.getSummary(filter));
 
 const {
   execute: getIncomeExpenseHistory,
@@ -110,7 +120,7 @@ const {
   loading: loadingHistory,
 } = useApi<MonthlyIncomeExpenseResponse[], DashboardFilter>((filter) =>
   dashboardService.getIncomeExpenseHistory(filter)
-)
+);
 
 const {
   execute: getCategoryTotals,
@@ -119,42 +129,57 @@ const {
   loading: loadingCategoryTotals,
 } = useApi<CategoryTotalsResponse, DashboardFilter>((filter) =>
   dashboardService.getCategoryTotals(filter)
-)
+);
+
+const {
+  execute: getTransactionsByMonth,
+  data: transactionsByMonth,
+  error: errorTransactionsByMonth,
+  loading: loadingTransactionsByMonth,
+} = useApi<TransactionsByMonthResponse[], DashboardFilter>((filter) =>
+  dashboardService.getTransactionsByMonth(filter)
+);
 
 const currentFilter = (): DashboardFilter => ({
   fromDate: fromDate.value,
   toDate: toDate.value,
-})
+});
 
 const fetchSummary = async (filter: DashboardFilter) => {
-  await getDashboardSummary(filter)
+  await getDashboardSummary(filter);
   if (errorSummary.value) {
-    toast.error('Erro ao carregar resumo do dashboard: ' + (errorSummary.value?.detail ?? 'Erro desconhecido'))
+    toast.error('Erro ao carregar resumo do dashboard: ' + (errorSummary.value?.detail ?? 'Erro desconhecido'));
   }
-}
+};
 
 const fetchHistory = async (filter: DashboardFilter) => {
-  await getIncomeExpenseHistory(filter)
+  await getIncomeExpenseHistory(filter);
   if (errorHistory.value) {
-    toast.error('Erro ao carregar histórico: ' + (errorHistory.value?.detail ?? 'Erro desconhecido'))
+    toast.error('Erro ao carregar histórico: ' + (errorHistory.value?.detail ?? 'Erro desconhecido'));
   }
-}
+};
 
 const fetchCategoryTotals = async (filter: DashboardFilter) => {
-  await getCategoryTotals(filter)
+  await getCategoryTotals(filter);
   if (errorCategoryTotals.value) {
-    toast.error('Erro ao carregar totais por categoria: ' + (errorCategoryTotals.value?.detail ?? 'Erro desconhecido'))
+    toast.error('Erro ao carregar totais por categoria: ' + (errorCategoryTotals.value?.detail ?? 'Erro desconhecido'));
   }
-}
+};
+
+const fetchTransactionsByMonth = async (filter: DashboardFilter) => {
+  await getTransactionsByMonth(filter);
+  if (errorTransactionsByMonth.value) {
+    toast.error('Erro ao carregar transações por mês: ' + (errorTransactionsByMonth.value?.detail ?? 'Erro desconhecido'));
+  }
+};
 
 const handleDateChange = async () => {
-  await Promise.all([fetchSummary(currentFilter()), fetchHistory(currentFilter()), fetchCategoryTotals(currentFilter())])
-}
+  await Promise.all([fetchSummary(currentFilter()), fetchHistory(currentFilter()), fetchCategoryTotals(currentFilter()), fetchTransactionsByMonth(currentFilter())]);
+};
 
 onMounted(async () => {
-  await Promise.all([fetchSummary(currentFilter()), fetchHistory(currentFilter()), fetchCategoryTotals(currentFilter())])
-})
-
+  await Promise.all([fetchSummary(currentFilter()), fetchHistory(currentFilter()), fetchCategoryTotals(currentFilter()), fetchTransactionsByMonth(currentFilter())]);
+});
 </script>
 
 <style scoped>
@@ -303,7 +328,7 @@ h1 {
   margin-top: 24px;
 }
 
-.donut-section > * {
+.donut-section>* {
   flex: 1;
   min-width: 300px;
 }
@@ -312,5 +337,15 @@ h1 {
   flex: 1;
   min-width: 300px;
   height: 370px;
+}
+
+.monthly-table-section {
+  margin-top: 24px;
+  width: 100%;
+}
+
+.table-skeleton {
+  width: 100% !important;
+  height: 300px;
 }
 </style>

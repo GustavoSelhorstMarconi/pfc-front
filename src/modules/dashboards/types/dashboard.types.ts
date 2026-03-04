@@ -27,3 +27,20 @@ export interface CategoryTotalsResponse {
   incomeTotals: CategoryTotalItem[];
   expenseTotals: CategoryTotalItem[];
 }
+
+export interface TransactionItem {
+  id: string;
+  accountName: string;
+  categoryName: string;
+  type: number; // 0 = Income, 1 = Expense
+  amount: number;
+  date: string;
+  description?: string;
+  isActive: boolean;
+}
+
+export interface TransactionsByMonthResponse {
+  year: number;
+  month: number;
+  transactions: TransactionItem[];
+}
