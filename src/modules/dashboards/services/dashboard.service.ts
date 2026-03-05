@@ -1,5 +1,5 @@
 import { httpClient } from '@/core/api/httpClient';
-import type { CategoryTotalsResponse, DashboardFilter, DashboardSummaryResponse, MonthlyIncomeExpenseResponse, TransactionsByMonthResponse } from '../types/dashboard.types';
+import type { CategoryTotalsResponse, DashboardFilter, DashboardSummaryResponse, InvestmentEvolutionResponse, MonthlyIncomeExpenseResponse, TransactionsByMonthResponse } from '../types/dashboard.types';
 
 const BASE_URL = '/dashboard';
 
@@ -36,6 +36,16 @@ export const dashboardService = {
 
   async getTransactionsByMonth(filter: DashboardFilter) {
     const { data } = await httpClient.get<TransactionsByMonthResponse[]>(`${BASE_URL}/transactions-by-month`, {
+      params: {
+        ...(filter.fromDate && { fromDate: filter.fromDate }),
+        ...(filter.toDate && { toDate: filter.toDate }),
+      },
+    });
+    return data;
+  },
+
+  async getInvestmentEvolution(filter: DashboardFilter) {
+    const { data } = await httpClient.get<InvestmentEvolutionResponse[]>(`${BASE_URL}/investment-evolution`, {
       params: {
         ...(filter.fromDate && { fromDate: filter.fromDate }),
         ...(filter.toDate && { toDate: filter.toDate }),

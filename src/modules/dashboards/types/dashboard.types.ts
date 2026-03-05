@@ -46,3 +46,9 @@ export interface TransactionsByMonthResponse {
   month: number;
   transactions: TransactionItem[];
 }
+
+export interface InvestmentEvolutionResponse {
+  year: number;
+  month: number;
+  investmentValue: number;
+}

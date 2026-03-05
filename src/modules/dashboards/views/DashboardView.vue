@@ -23,7 +23,7 @@
 
     <div class="dashboard-grid">
       <template v-if="loadingSummary">
-        <SkeletonCard v-for="i in 4" :key="i" />
+        <SkeletonCard v-for="i in 6" :key="i" />
       </template>
 
       <template v-else>
@@ -77,6 +77,11 @@
       <IncomeExpenseChart v-else :data="incomeExpenseHistory ?? []" />
     </div>
 
+    <div class="chart-section">
+      <SkeletonCard v-if="loadingInvestmentEvolution" class="chart-skeleton" />
+      <InvestmentEvolutionChart v-else :data="investmentEvolution ?? []" />
+    </div>
+
     <div class="donut-section">
       <template v-if="loadingCategoryTotals">
         <SkeletonCard class="donut-skeleton" />
@@ -103,12 +108,14 @@ import { onMounted, ref } from 'vue';
 import { toast } from 'vue-sonner';
 import CategoryDonutChart from '../components/CategoryDonutChart.vue';
 import IncomeExpenseChart from '../components/IncomeExpenseChart.vue';
+import InvestmentEvolutionChart from '../components/InvestmentEvolutionChart.vue';
 import MonthlyTransactionsTable from '../components/MonthlyTransactionsTable.vue';
 import { dashboardService } from '../services/dashboard.service';
 import type {
   CategoryTotalsResponse,
   DashboardFilter,
   DashboardSummaryResponse,
+  InvestmentEvolutionResponse,
   MonthlyIncomeExpenseResponse,
   TransactionsByMonthResponse,
 } from '../types/dashboard.types';
@@ -154,6 +161,15 @@ const {
   dashboardService.getTransactionsByMonth(filter)
 );
 
+const {
+  execute: getInvestmentEvolution,
+  data: investmentEvolution,
+  error: errorInvestmentEvolution,
+  loading: loadingInvestmentEvolution,
+} = useApi<InvestmentEvolutionResponse[], DashboardFilter>((filter) =>
+  dashboardService.getInvestmentEvolution(filter)
+);
+
 const currentFilter = (): DashboardFilter => ({
   fromDate: fromDate.value,
   toDate: toDate.value,
@@ -187,12 +203,31 @@ const fetchTransactionsByMonth = async (filter: DashboardFilter) => {
   }
 };
 
+const fetchInvestmentEvolution = async (filter: DashboardFilter) => {
+  await getInvestmentEvolution(filter);
+  if (errorInvestmentEvolution.value) {
+    toast.error('Erro ao carregar evolução de investimentos: ' + (errorInvestmentEvolution.value?.detail ?? 'Erro desconhecido'));
+  }
+};
+
 const handleDateChange = async () => {
-  await Promise.all([fetchSummary(currentFilter()), fetchHistory(currentFilter()), fetchCategoryTotals(currentFilter()), fetchTransactionsByMonth(currentFilter())]);
+  await Promise.all([
+    fetchSummary(currentFilter()),
+    fetchHistory(currentFilter()),
+    fetchCategoryTotals(currentFilter()),
+    fetchTransactionsByMonth(currentFilter()),
+    fetchInvestmentEvolution(currentFilter()),
+  ]);
 };
 
 onMounted(async () => {
-  await Promise.all([fetchSummary(currentFilter()), fetchHistory(currentFilter()), fetchCategoryTotals(currentFilter()), fetchTransactionsByMonth(currentFilter())]);
+  await Promise.all([
+    fetchSummary(currentFilter()),
+    fetchHistory(currentFilter()),
+    fetchCategoryTotals(currentFilter()),
+    fetchTransactionsByMonth(currentFilter()),
+    fetchInvestmentEvolution(currentFilter()),
+  ]);
 });
 </script>
 
@@ -336,6 +371,7 @@ h1 {
 
 .chart-section {
   width: 100%;
+  margin-top: 24px;
 }
 
 .chart-skeleton {
