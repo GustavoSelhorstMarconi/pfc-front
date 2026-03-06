@@ -96,24 +96,14 @@
                   <input v-model="item.description" type="text" class="table-input" maxlength="300" />
                 </td>
                 <td class="col-type">
-                  <button
-                    type="button"
-                    class="type-badge"
-                    :class="item.type === 0 ? 'income' : 'expense'"
-                    @click="toggleType(index)"
-                  >
+                  <button type="button" class="type-badge" :class="item.type === 0 ? 'income' : 'expense'"
+                    @click="toggleType(index)">
                     {{ item.type === 0 ? 'Receita' : 'Despesa' }}
                   </button>
                 </td>
                 <td>
-                  <input
-                    :value="item.amount.toFixed(2)"
-                    @change="(e) => updateAmount(index, e)"
-                    type="number"
-                    min="0.01"
-                    step="0.01"
-                    class="table-input amount-input"
-                  />
+                  <input :value="item.amount.toFixed(2)" @change="(e) => updateAmount(index, e)" type="number"
+                    min="0.01" step="0.01" class="table-input amount-input" />
                 </td>
                 <td>
                   <select v-model="item.accountId" class="table-select">
@@ -124,17 +114,10 @@
                   </select>
                 </td>
                 <td>
-                  <select
-                    v-model="item.categoryId"
-                    class="table-select"
-                    :class="{ 'select-missing': !item.categoryId }"
-                  >
+                  <select v-model="item.categoryId" class="table-select"
+                    :class="{ 'select-missing': !item.categoryId }">
                     <option value="">Selecione</option>
-                    <option
-                      v-for="category in filteredCategories(item.type)"
-                      :key="category.id"
-                      :value="category.id"
-                    >
+                    <option v-for="category in filteredCategories(item.type)" :key="category.id" :value="category.id">
                       {{ category.name }}
                     </option>
                   </select>
@@ -148,12 +131,7 @@
 
         <div class="modal-actions">
           <button type="button" class="cancel-button" @click="step = 1">Voltar</button>
-          <button
-            type="button"
-            class="submit-button"
-            :disabled="!allItemsValid || loading"
-            @click="handleConfirm"
-          >
+          <button type="button" class="submit-button" :disabled="!allItemsValid || loading" @click="handleConfirm">
             {{ loading ? 'Importando...' : `Confirmar ${previewItems.length} transações` }}
           </button>
         </div>
@@ -174,12 +152,7 @@
           </p>
 
           <div class="modal-actions result-actions">
-            <button
-              v-if="result?.errorFileCsvBase64"
-              type="button"
-              class="download-button"
-              @click="downloadErrorFile"
-            >
+            <button v-if="result?.errorFileCsvBase64" type="button" class="download-button" @click="downloadErrorFile">
               Baixar erros (.csv)
             </button>
             <button type="button" class="submit-button" @click="handleClose">Fechar</button>
@@ -285,7 +258,7 @@ const handlePreview = async () => {
     bulkAccountId.value = defaultAccountId;
     step.value = 2;
   } catch (err: unknown) {
-    const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
+    const detail = (err as { response?: { data?: { detail?: string; }; }; })?.response?.data?.detail;
     uploadError.value = detail ?? 'Erro ao processar o arquivo.';
   } finally {
     loading.value = false;
@@ -299,13 +272,15 @@ const applyAccountToAll = () => {
 
 const toggleType = (index: number) => {
   const item = previewItems.value[index];
-  item.type = item.type === TransactionType.Income ? TransactionType.Expense : TransactionType.Income;
-  item.categoryId = '';
+  if (item) {
+    item.type = item.type === TransactionType.Income ? TransactionType.Expense : TransactionType.Income;
+    item.categoryId = '';
+  }
 };
 
 const updateAmount = (index: number, event: Event) => {
   const value = parseFloat((event.target as HTMLInputElement).value);
-  if (!isNaN(value) && value > 0) {
+  if (!isNaN(value) && value > 0 && previewItems.value[index]) {
     previewItems.value[index].amount = value;
   }
 };
@@ -332,7 +307,7 @@ const handleConfirm = async () => {
       emit('imported');
     }
   } catch (err: unknown) {
-    const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
+    const detail = (err as { response?: { data?: { detail?: string; }; }; })?.response?.data?.detail;
     confirmError.value = detail ?? 'Erro ao importar transações.';
   } finally {
     loading.value = false;
