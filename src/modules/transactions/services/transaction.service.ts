@@ -1,5 +1,14 @@
 import { httpClient } from '@/core/api/httpClient';
-import type { CreateTransactionRequest, GenerateTransactionFromRecurrenceRequest, TransactionResponse, UpdateTransactionRequest } from '../types/transaction.types';
+import type {
+  ConfirmImportItem,
+  ConfirmImportResponse,
+  CreateTransactionRequest,
+  GenerateTransactionFromRecurrenceRequest,
+  ImportPreviewResponse,
+  TransactionResponse,
+  UpdateTransactionRequest,
+} from '../types/transaction.types';
+
 const BASE_URL = '/transactions';
 
 export const transactionService = {
@@ -26,5 +35,19 @@ export const transactionService = {
   async generateFromRecurrences(payload: GenerateTransactionFromRecurrenceRequest[]) {
     const { data } = await httpClient.post<TransactionResponse[]>(`${BASE_URL}/from-recurrences`, payload);
     return data;
-  }
+  },
+
+  async previewImport(file: File) {
+    const form = new FormData();
+    form.append('file', file);
+    const { data } = await httpClient.post<ImportPreviewResponse>(`${BASE_URL}/import/preview`, form, {
+      headers: { 'Content-Type': undefined },
+    });
+    return data;
+  },
+
+  async confirmImport(items: ConfirmImportItem[]) {
+    const { data } = await httpClient.post<ConfirmImportResponse>(`${BASE_URL}/import/confirm`, { items });
+    return data;
+  },
 };

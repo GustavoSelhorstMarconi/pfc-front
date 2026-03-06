@@ -2,9 +2,14 @@
   <div class="transactions-view">
     <h1>Transações</h1>
 
-    <button class="add-button" @click="openCreateModal">
-      Adicionar Nova Transação
-    </button>
+    <div class="header-actions">
+      <button class="add-button" @click="openCreateModal">
+        Adicionar Nova Transação
+      </button>
+      <button class="import-button" @click="showImportModal = true">
+        Importar
+      </button>
+    </div>
 
     <div class="transactions-grid">
       <template v-if="loading">
@@ -84,6 +89,13 @@
       @save="handleSave" />
     <ConfirmModal :show="showDeleteModal" title="Excluir transação" message="Esta ação não pode ser desfeita."
       @cancel="showDeleteModal = false" @confirm="confirmDelete" />
+    <ImportTransactionsModal
+      :show="showImportModal"
+      :accounts="accounts || []"
+      :categories="categories || []"
+      @close="showImportModal = false"
+      @imported="handleGet"
+    />
   </div>
 </template>
 
@@ -98,6 +110,7 @@ import { categoryService } from '@/modules/categories/services/category.service'
 import { transactionService } from '../services/transaction.service';
 
 import ConfirmModal from '@/shared/components/ConfirmModal.vue';
+import ImportTransactionsModal from '../components/ImportTransactionsModal.vue';
 import TransactionModal from '../components/TransactionModal.vue';
 
 import type {
@@ -116,6 +129,7 @@ import { formatCurrency, formatDate, formatTransactionType } from '@/shared/util
 
 const transactions = ref<TransactionResponse[]>([]);
 const showModal = ref(false);
+const showImportModal = ref(false);
 const selectedTransaction = ref<TransactionResponse | null>(null);
 const showDeleteModal = ref(false);
 const transactionToDelete = ref<string | null>(null);
@@ -268,6 +282,12 @@ h1 {
   margin-bottom: 20px;
 }
 
+.header-actions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
 .add-button {
   background-color: #2563eb;
   color: white;
@@ -275,8 +295,22 @@ h1 {
   padding: 10px 20px;
   font-size: 16px;
   cursor: pointer;
-  margin-bottom: 20px;
   border-radius: 6px;
+}
+
+.import-button {
+  background-color: #0f172a;
+  color: #cbd5e1;
+  border: 1px solid #334155;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.import-button:hover {
+  background-color: #1e293b;
 }
 
 .transactions-grid {
