@@ -58,6 +58,28 @@
   font-weight: normal;
 }
 
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+::-webkit-scrollbar-corner {
+  background: #0f172a;
+}
+
 body {
   min-height: 100vh;
   color: var(--color-text);

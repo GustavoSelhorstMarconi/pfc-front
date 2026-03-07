@@ -270,4 +270,32 @@ const sortByDate = (transactions: TransactionItem[]): TransactionItem[] =>
   text-overflow: ellipsis;
   font-style: italic;
 }
+
+.months-wrapper::-webkit-scrollbar,
+.transaction-list::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.months-wrapper::-webkit-scrollbar-track,
+.transaction-list::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 3px;
+}
+
+.months-wrapper::-webkit-scrollbar-thumb,
+.transaction-list::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 3px;
+}
+
+.months-wrapper::-webkit-scrollbar-thumb:hover,
+.transaction-list::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+.months-wrapper::-webkit-scrollbar-corner,
+.transaction-list::-webkit-scrollbar-corner {
+  background: rgba(15, 23, 42, 0.6);
+}
 </style>

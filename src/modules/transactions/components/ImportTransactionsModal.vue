@@ -1,8 +1,6 @@
 <template>
   <div v-if="show" class="modal-overlay" @click="closeModal">
     <div class="modal-content" @click.stop>
-
-      <!-- Step indicator -->
       <div class="step-indicator">
         <div class="step" :class="{ active: step >= 1, done: step > 1 }">
           <span class="step-number">1</span>
@@ -20,7 +18,6 @@
         </div>
       </div>
 
-      <!-- Passo 1: Upload -->
       <template v-if="step === 1">
         <h2>Importar Transações</h2>
         <p class="subtitle">Selecione um arquivo CSV ou OFX exportado do seu banco.</p>
@@ -50,7 +47,6 @@
         </div>
       </template>
 
-      <!-- Passo 2: Revisão -->
       <template v-else-if="step === 2">
         <div class="review-header">
           <div>
@@ -137,7 +133,6 @@
         </div>
       </template>
 
-      <!-- Passo 3: Resultado -->
       <template v-else-if="step === 3">
         <div class="result-screen">
           <div v-if="result && result.failedCount === 0" class="result-icon success">✓</div>
