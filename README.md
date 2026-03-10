@@ -1,48 +1,79 @@
-# pfc-front
+# PFC — Personal Finance Control (Frontend)
 
-This template should help get you started developing with Vue 3 in Vite.
+Interface web do sistema de controle financeiro pessoal, construída com Vue 3 e TypeScript.
 
-## Recommended IDE Setup
+## Tecnologias
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+- **Vue 3** + TypeScript
+- **Vite** (bundler)
+- **Pinia** (gerenciamento de estado)
+- **Vue Router** (roteamento)
+- **Axios** (HTTP client com interceptors JWT)
+- **ApexCharts** (gráficos do dashboard)
+- **Vue Sonner** (notificações toast)
 
-## Recommended Browser Setup
+## Pré-requisitos
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+- Node.js 18+
+- npm ou pnpm
 
-## Type Support for `.vue` Imports in TS
+## Instalação e execução
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+```bash
+# Clone o repositório
+git clone <url-do-repositorio>
+cd pfc-front
 
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
+# Instale as dependências
 npm install
-```
 
-### Compile and Hot-Reload for Development
+# Configure as variáveis de ambiente
+cp .env.example .env
+# Edite o .env com a URL da API
 
-```sh
+# Inicie o servidor de desenvolvimento
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+A aplicação estará disponível em `http://localhost:5173`.
 
-```sh
-npm run build
+## Variáveis de ambiente
+
+Crie um arquivo `.env` na raiz do projeto:
+
+```env
+VITE_API_BASE_URL=https://localhost:7014/api
 ```
 
-### Lint with [ESLint](https://eslint.org/)
+## Scripts disponíveis
 
-```sh
-npm run lint
+| Comando | Descrição |
+|---------|-----------|
+| `npm run dev` | Inicia o servidor de desenvolvimento |
+| `npm run build` | Gera build de produção com type-check |
+| `npm run build-only` | Gera build sem type-check |
+| `npm run lint` | Executa linting com ESLint e Oxlint |
+| `npm run format` | Formata o código com Prettier |
+
+## Funcionalidades
+
+- **Autenticação** — Login, registro e renovação automática de token JWT
+- **Dashboard** — Resumo financeiro, histórico de receitas/despesas, evolução de investimentos e breakdown por categoria
+- **Transações** — Listagem, criação, edição e importação via CSV/OFX
+- **Contas** — Gerenciamento de contas bancárias e de investimento
+- **Categorias** — Criação e edição de categorias de transação
+- **Recorrências** — Transações recorrentes e geração automática de lançamentos
+- **Metas** — Acompanhamento de metas financeiras
+- **Dívidas** — Controle de dívidas
+
+## Estrutura do projeto
+
+```
+src/
+├── core/           # Axios, config de ambiente
+├── modules/        # Módulos de funcionalidade (auth, transactions, etc.)
+├── router/         # Configuração de rotas com guard de autenticação
+├── shared/         # Componentes e utilitários compartilhados
+├── stores/         # Stores Pinia (auth)
+└── views/          # Layout principal
 ```
