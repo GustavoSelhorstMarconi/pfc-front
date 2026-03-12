@@ -76,6 +76,8 @@ const handleSave = async (form: CreateCategoryRequest | UpdateCategoryRequest) =
       );
     } else if (updatedCategory.value) {
       toast.success('Categoria atualizada com sucesso!');
+      showModal.value = false;
+      selectedCategory.value = null;
       await handleGetCategories();
     }
   } else {
@@ -87,11 +89,11 @@ const handleSave = async (form: CreateCategoryRequest | UpdateCategoryRequest) =
       );
     } else if (createdCategory.value) {
       toast.success('Categoria criada com sucesso!');
+      showModal.value = false;
+      selectedCategory.value = null;
       await handleGetCategories();
     }
   }
-
-  selectedCategory.value = null;
 };
 
 onMounted(async () => {

@@ -81,12 +81,21 @@ const handleSubmit = () => {
   } else {
     emit('save', form.value)
   }
-  closeModal()
+}
+
+const resetForm = () => {
+  form.value = {
+    name: '',
+    type: 0,
+    color: '#ffffff',
+    isActive: true,
+  }
 }
 
 watch(
-  () => props.category,
-  (newCategory) => {
+  [() => props.category, () => props.show],
+  ([newCategory, newShow]) => {
+    if (!newShow) return
     if (newCategory) {
       form.value = {
         name: newCategory.name,
@@ -95,29 +104,10 @@ watch(
         isActive: newCategory.isActive,
       }
     } else {
-      form.value = {
-        name: '',
-        type: 0,
-        color: '#ffffff',
-        isActive: true,
-      }
+      resetForm()
     }
   },
   { immediate: true },
-)
-
-watch(
-  () => props.show,
-  (newShow) => {
-    if (!newShow) {
-      form.value = {
-        name: '',
-        type: 0,
-        color: '#ffffff',
-        isActive: true,
-      }
-    }
-  },
 )
 </script>
 

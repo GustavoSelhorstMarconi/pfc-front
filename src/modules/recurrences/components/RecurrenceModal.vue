@@ -143,6 +143,7 @@ const form = ref<CreateRecurrenceRequest | UpdateRecurrenceRequest>({
   generatesTransaction: false,
 });
 
+
 const closeModal = () => emit('close');
 
 const handleSubmit = () => {
@@ -154,8 +155,6 @@ const handleSubmit = () => {
   } else {
     emit('save', form.value);
   }
-
-  closeModal();
 };
 
 const formattedAmount = computed(() =>
@@ -166,15 +165,34 @@ const handleCurrencyInput = (event: Event) => {
   form.value.amount = parseCurrencyInput(event);
 };
 
+const resetForm = () => {
+  form.value = {
+    accountId: '',
+    categoryId: '',
+    type: 0,
+    amount: 0,
+    description: '',
+    frequency: 2,
+    interval: 1,
+    startDate: '',
+    endDate: '',
+    isActive: true,
+    generatesTransaction: false,
+  };
+};
+
 watch(
-  () => props.recurrence,
-  (newValue) => {
-    if (newValue) {
+  [() => props.recurrence, () => props.show],
+  ([newRecurrence, newShow]) => {
+    if (!newShow) return;
+    if (newRecurrence) {
       form.value = {
-        ...newValue,
-        startDate: newValue.startDate.substring(0, 10),
-        endDate: newValue.endDate?.substring(0, 10) || '',
+        ...newRecurrence,
+        startDate: newRecurrence.startDate.substring(0, 10),
+        endDate: newRecurrence.endDate?.substring(0, 10) || '',
       };
+    } else {
+      resetForm();
     }
   },
   { immediate: true },

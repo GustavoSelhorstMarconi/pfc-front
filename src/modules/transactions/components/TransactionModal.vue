@@ -133,6 +133,19 @@ const handleSubmit = () => {
   }
 };
 
+const resetForm = () => {
+  form.value = {
+    accountId: '',
+    categoryId: '',
+    type: 0,
+    amount: 0,
+    date: '',
+    description: '',
+    goalId: null,
+    debtId: null,
+  };
+};
+
 const formattedAmount = computed(() =>
   form.value.amount ? formatCurrency(form.value.amount) : ''
 );
@@ -142,24 +155,16 @@ const handleCurrencyInput = (event: Event) => {
 };
 
 watch(
-  () => props.transaction,
-  (newValue) => {
-    if (newValue) {
+  [() => props.transaction, () => props.show],
+  ([newTransaction, newShow]) => {
+    if (!newShow) return;
+    if (newTransaction) {
       form.value = {
-        ...newValue,
-        date: newValue.date.substring(0, 10),
+        ...newTransaction,
+        date: newTransaction.date.substring(0, 10),
       };
     } else {
-      form.value = {
-        accountId: '',
-        categoryId: '',
-        type: 0,
-        amount: 0,
-        date: '',
-        description: '',
-        goalId: null,
-        debtId: null,
-      };
+      resetForm();
     }
   },
   { immediate: true },

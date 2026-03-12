@@ -92,6 +92,8 @@ const handleSave = async (form: CreateGoalRequest | UpdateGoalRequest) => {
       );
     } else if (updatedGoal.value) {
       toast.success('Meta atualizada com sucesso!');
+      showModal.value = false;
+      selectedGoal.value = null;
       await handleGetGoals();
     }
   } else {
@@ -101,11 +103,11 @@ const handleSave = async (form: CreateGoalRequest | UpdateGoalRequest) => {
       toast.error('Erro ao criar meta: ' + (errorCreateGoal.value?.detail ?? 'Erro desconhecido'));
     } else if (createdGoal.value) {
       toast.success('Meta criada com sucesso!');
+      showModal.value = false;
+      selectedGoal.value = null;
       await handleGetGoals();
     }
   }
-
-  selectedGoal.value = null;
 };
 
 const openCreateModal = () => {

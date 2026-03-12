@@ -99,8 +99,6 @@ const handleSubmit = () => {
       dueDate: form.value.dueDate || undefined,
     });
   }
-
-  closeModal();
 };
 
 const formattedTotalAmount = computed(() =>
@@ -111,9 +109,20 @@ const handleCurrencyInput = (event: Event) => {
   form.value.totalAmount = parseCurrencyInput(event);
 };
 
+const resetForm = () => {
+  form.value = {
+    name: '',
+    totalAmount: 0,
+    interestRate: undefined,
+    dueDate: '',
+    isActive: true,
+  };
+};
+
 watch(
-  () => props.debt,
-  (newDebt) => {
+  [() => props.debt, () => props.show],
+  ([newDebt, newShow]) => {
+    if (!newShow) return;
     if (newDebt) {
       form.value = {
         name: newDebt.name,
@@ -125,31 +134,10 @@ watch(
         isActive: newDebt.isActive,
       };
     } else {
-      form.value = {
-        name: '',
-        totalAmount: 0,
-        interestRate: undefined,
-        dueDate: '',
-        isActive: true,
-      };
+      resetForm();
     }
   },
   { immediate: true },
-);
-
-watch(
-  () => props.show,
-  (newShow) => {
-    if (!newShow) {
-      form.value = {
-        name: '',
-        totalAmount: 0,
-        interestRate: undefined,
-        dueDate: '',
-        isActive: true,
-      };
-    }
-  },
 );
 </script>
 

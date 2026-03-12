@@ -107,6 +107,8 @@ const handleSave = async (form: CreateDebtRequest | UpdateDebtRequest) => {
       );
     } else if (updatedDebt.value) {
       toast.success('Dívida atualizada com sucesso!');
+      showModal.value = false;
+      selectedDebt.value = null;
       await handleGetDebts();
     }
   } else {
@@ -116,11 +118,11 @@ const handleSave = async (form: CreateDebtRequest | UpdateDebtRequest) => {
       toast.error('Erro ao criar dívida: ' + (errorCreateDebt.value?.detail ?? 'Erro desconhecido'));
     } else if (createdDebt.value) {
       toast.success('Dívida criada com sucesso!');
+      showModal.value = false;
+      selectedDebt.value = null;
       await handleGetDebts();
     }
   }
-
-  selectedDebt.value = null;
 };
 
 const openCreateModal = () => {

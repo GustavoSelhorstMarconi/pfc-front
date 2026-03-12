@@ -86,8 +86,6 @@ const handleSubmit = () => {
   } else {
     emit('save', form.value)
   }
-
-  closeModal()
 }
 
 const formattedTargetAmount = computed(() =>
@@ -98,9 +96,19 @@ const handleCurrencyInput = (event: Event) => {
   form.value.targetAmount = parseCurrencyInput(event)
 }
 
+const resetForm = () => {
+  form.value = {
+    name: '',
+    targetAmount: 0,
+    deadline: '',
+    isActive: true,
+  }
+}
+
 watch(
-  () => props.goal,
-  (newGoal) => {
+  [() => props.goal, () => props.show],
+  ([newGoal, newShow]) => {
+    if (!newShow) return
     if (newGoal) {
       form.value = {
         name: newGoal.name,
@@ -109,29 +117,10 @@ watch(
         isActive: newGoal.isActive,
       }
     } else {
-      form.value = {
-        name: '',
-        targetAmount: 0,
-        deadline: '',
-        isActive: true,
-      }
+      resetForm()
     }
   },
   { immediate: true },
-)
-
-watch(
-  () => props.show,
-  (newShow) => {
-    if (!newShow) {
-      form.value = {
-        name: '',
-        targetAmount: 0,
-        deadline: '',
-        isActive: true,
-      }
-    }
-  },
 )
 </script>
 

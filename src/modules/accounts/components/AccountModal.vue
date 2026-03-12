@@ -108,13 +108,21 @@ const handleSubmit = () => {
 
     emit('save', createRequest);
   }
+};
 
-  closeModal();
+const resetForm = () => {
+  form.value = {
+    name: '',
+    type: 0,
+    initialBalance: 0,
+    isActive: true,
+  };
 };
 
 watch(
-  () => props.account,
-  (newAccount) => {
+  [() => props.account, () => props.show],
+  ([newAccount, newShow]) => {
+    if (!newShow) return;
     if (newAccount) {
       form.value = {
         name: newAccount.name,
@@ -123,29 +131,10 @@ watch(
         isActive: newAccount.isActive,
       };
     } else {
-      form.value = {
-        name: '',
-        type: 0,
-        initialBalance: 0,
-        isActive: true,
-      };
+      resetForm();
     }
   },
   { immediate: true },
-);
-
-watch(
-  () => props.show,
-  (newShow) => {
-    if (!newShow) {
-      form.value = {
-        name: '',
-        type: 0,
-        initialBalance: 0,
-        isActive: true,
-      };
-    }
-  },
 );
 </script>
 

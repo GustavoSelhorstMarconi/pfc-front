@@ -92,6 +92,8 @@ const handleSave = async (form: CreateAccountRequest | UpdateAccountRequest) => 
       );
     } else if (updatedAccount.value) {
       toast.success('Conta atualizada com sucesso!');
+      showModal.value = false;
+      selectedAccount.value = null;
       await handleGetAccounts();
     }
   } else {
@@ -103,12 +105,11 @@ const handleSave = async (form: CreateAccountRequest | UpdateAccountRequest) => 
       );
     } else if (createdAccount.value) {
       toast.success('Conta criada com sucesso!');
-      await handleGetAccounts();
       showModal.value = false;
+      selectedAccount.value = null;
+      await handleGetAccounts();
     }
   }
-
-  selectedAccount.value = null;
 };
 
 

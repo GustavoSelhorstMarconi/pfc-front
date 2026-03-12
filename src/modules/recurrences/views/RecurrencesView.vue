@@ -89,8 +89,8 @@ import { accountService } from '@/modules/accounts/services/account.service';
 import type { AccountResponse } from '@/modules/accounts/types/account.types';
 import { categoryService } from '@/modules/categories/services/category.service';
 import type { CategoryResponse } from '@/modules/categories/types/category.types';
-import { formatCurrency, formatDate, formatFrequency, formatTransactionType } from '@/shared/utils/formatters';
 import SkeletonCard from '@/shared/components/SkeletonCard.vue';
+import { formatCurrency, formatDate, formatFrequency, formatTransactionType } from '@/shared/utils/formatters';
 import { onMounted, ref } from 'vue';
 import { toast } from 'vue-sonner';
 import RecurrenceModal from '../components/RecurrenceModal.vue';
@@ -160,6 +160,7 @@ const handleSave = async (
       toast.error('Erro ao atualizar recorrência: ' + (errorUpdate.value?.detail ?? 'Erro desconhecido'));
     } else if (updatedRecurrence.value) {
       toast.success('Recorrência atualizada!');
+      showModal.value = false;
       await handleGet();
     }
   } else {
@@ -169,6 +170,7 @@ const handleSave = async (
       toast.error('Erro ao criar recorrência: ' + (errorCreate.value?.detail ?? 'Erro desconhecido'));
     } else if (createdRecurrence.value) {
       toast.success('Recorrência criada!');
+      showModal.value = false;
       await handleGet();
     }
   }
