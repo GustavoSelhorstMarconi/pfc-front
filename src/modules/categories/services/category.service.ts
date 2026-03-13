@@ -1,4 +1,5 @@
 import { httpClient } from '@/core/api/httpClient'
+import type { PagedRequest, PagedResponse } from '@/shared/types/paged.types'
 import type {
   CategoryResponse,
   CreateCategoryRequest,
@@ -15,6 +16,11 @@ export const categoryService = {
 
   async get() {
     const { data } = await httpClient.get<CategoryResponse[]>(`${BASE_URL}`)
+    return data
+  },
+
+  async getPaged(params: PagedRequest) {
+    const { data } = await httpClient.get<PagedResponse<CategoryResponse>>(`${BASE_URL}/paged`, { params })
     return data
   },
 

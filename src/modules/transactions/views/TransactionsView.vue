@@ -9,9 +9,13 @@
       <button class="import-button" @click="showImportModal = true">
         Importar
       </button>
+      <div class="view-toggle">
+        <button :class="['toggle-btn', { active: viewMode === 'cards' }]" @click="viewMode = 'cards'">Cards</button>
+        <button :class="['toggle-btn', { active: viewMode === 'table' }]" @click="viewMode = 'table'">Tabela</button>
+      </div>
     </div>
 
-    <div class="transactions-grid">
+    <div v-if="viewMode === 'cards'" class="transactions-grid">
       <template v-if="loading">
         <SkeletonCard v-for="i in 6" :key="i" />
       </template>
@@ -84,6 +88,34 @@
       </template>
     </div>
 
+    <DataTable
+      v-if="viewMode === 'table'"
+      :columns="tableColumns"
+      :data="pagedData?.items ?? []"
+      v-model:currentPage="tableState.currentPage"
+      v-model:pageSize="tableState.pageSize"
+      v-model:sortBy="tableState.sortBy"
+      v-model:sortDir="tableState.sortDir"
+      v-model:search="tableState.search"
+      :totalCount="pagedData?.totalCount ?? 0"
+      :loading="pagedLoading"
+    >
+      <template #cell-type="{ value }">
+        <span class="type-badge" :class="value === 0 ? 'income' : 'expense'">
+          {{ formatTransactionType(value as number) }}
+        </span>
+      </template>
+      <template #cell-isActive="{ value }">
+        <span class="status-badge" :class="value ? 'active' : 'inactive'">
+          {{ value ? 'Ativa' : 'Inativa' }}
+        </span>
+      </template>
+      <template #actions="{ row }">
+        <button class="edit-button" style="padding: 6px 12px;" @click="editTransaction(row)">Editar</button>
+        <button class="delete-button" style="padding: 6px 12px; margin-left: 6px;" @click="askDelete(row.id)">Excluir</button>
+      </template>
+    </DataTable>
+
     <TransactionModal :show="showModal" :transaction="selectedTransaction" :accounts="accounts || []"
       :categories="categories || []" :goals="goals || []" :debts="debts || []" @close="showModal = false"
       @save="handleSave" />
@@ -102,7 +134,7 @@
 <script setup lang="ts">
 import { useApi } from '@/core/composables/useApi';
 import SkeletonCard from '@/shared/components/SkeletonCard.vue';
-import { onMounted, ref } from 'vue';
+import { onMounted, reactive, ref, watch } from 'vue';
 import { toast } from 'vue-sonner';
 
 import { accountService } from '@/modules/accounts/services/account.service';
@@ -110,8 +142,11 @@ import { categoryService } from '@/modules/categories/services/category.service'
 import { transactionService } from '../services/transaction.service';
 
 import ConfirmModal from '@/shared/components/ConfirmModal.vue';
+import DataTable from '@/shared/components/DataTable.vue';
+import type { ColumnDef } from '@/shared/components/DataTable.vue';
 import ImportTransactionsModal from '../components/ImportTransactionsModal.vue';
 import TransactionModal from '../components/TransactionModal.vue';
+import type { PagedResponse } from '@/shared/types/paged.types';
 
 import type {
   CreateTransactionRequest,
@@ -129,6 +164,15 @@ import { formatCurrency, formatDate, formatTransactionType } from '@/shared/util
 
 const transactions = ref<TransactionResponse[]>([]);
 const showModal = ref(false);
+const viewMode = ref<'cards' | 'table'>('cards');
+const tableState = reactive({
+  currentPage: 1,
+  pageSize: 10,
+  sortBy: 'date',
+  sortDir: 'desc' as 'asc' | 'desc',
+  search: '',
+});
+const pagedData = ref<PagedResponse<TransactionResponse> | null>(null);
 const showImportModal = ref(false);
 const selectedTransaction = ref<TransactionResponse | null>(null);
 const showDeleteModal = ref(false);
@@ -165,6 +209,20 @@ const {
 );
 
 const {
+  execute: executeGetPaged,
+  data: pagedTransactionsData,
+  loading: pagedLoading,
+} = useApi<PagedResponse<TransactionResponse>>(() =>
+  transactionService.getPaged({
+    page: tableState.currentPage,
+    pageSize: tableState.pageSize,
+    search: tableState.search,
+    sortBy: tableState.sortBy,
+    sortDir: tableState.sortDir,
+  }),
+);
+
+const {
   execute: getAccounts,
   data: accounts,
 } = useApi<AccountResponse[]>(() => accountService.get());
@@ -183,6 +241,17 @@ const {
   execute: getDebts,
   data: debts,
 } = useApi<DebtResponse[]>(() => debtService.get());
+
+const fetchPaged = async () => {
+  await executeGetPaged();
+  if (pagedTransactionsData.value) pagedData.value = pagedTransactionsData.value;
+};
+
+watch(viewMode, (mode) => {
+  if (mode === 'table') fetchPaged();
+});
+
+watch(tableState, fetchPaged, { deep: true });
 
 const handleGet = async () => {
   await getTransactions();
@@ -258,6 +327,16 @@ const getCategoryName = (categoryId: string) =>
   categories.value?.find(c => c.id === categoryId)?.name ?? '—';
 
 const formatType = formatTransactionType;
+
+const tableColumns: ColumnDef[] = [
+  { key: 'description', label: 'Descrição', sortable: true },
+  { key: 'type', label: 'Tipo', sortable: true },
+  { key: 'amount', label: 'Valor', sortable: true, align: 'right', format: (v) => formatCurrency(v as number) },
+  { key: 'date', label: 'Data', sortable: true, format: (v) => formatDate(v as string) },
+  { key: 'accountName', label: 'Conta', sortable: true },
+  { key: 'categoryName', label: 'Categoria', sortable: true },
+  { key: 'isActive', label: 'Status', sortable: true },
+];
 
 onMounted(async () => {
   await Promise.all([
@@ -450,5 +529,31 @@ h1 {
 
 .delete-button:hover {
   background-color: #dc2626;
+}
+
+.view-toggle {
+  display: flex;
+  gap: 4px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 4px;
+  margin-left: auto;
+}
+
+.toggle-btn {
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.toggle-btn.active {
+  background: #2563eb;
+  color: white;
 }
 </style>

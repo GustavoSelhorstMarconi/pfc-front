@@ -1,4 +1,5 @@
 import { httpClient } from '@/core/api/httpClient';
+import type { PagedRequest, PagedResponse } from '@/shared/types/paged.types';
 import type {
   ConfirmImportItem,
   ConfirmImportResponse,
@@ -17,8 +18,13 @@ export const transactionService = {
     return data;
   },
 
-  async get() {
-    const { data } = await httpClient.get<TransactionResponse[]>(`${BASE_URL}`);
+  async get(params?: { month?: number; year?: number }) {
+    const { data } = await httpClient.get<TransactionResponse[]>(`${BASE_URL}`, { params });
+    return data;
+  },
+
+  async getPaged(params: PagedRequest & { month?: number; year?: number }) {
+    const { data } = await httpClient.get<PagedResponse<TransactionResponse>>(`${BASE_URL}/paged`, { params });
     return data;
   },
 

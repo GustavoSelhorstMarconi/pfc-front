@@ -1,8 +1,14 @@
 <template>
   <div class="categories-view">
     <h1>Categorias</h1>
-    <button class="add-button" @click="openCreateModal">Adicionar Nova Categoria</button>
-    <div class="categories-grid">
+    <div class="header-actions">
+      <button class="add-button" @click="openCreateModal">Adicionar Nova Categoria</button>
+      <div class="view-toggle">
+        <button :class="['toggle-btn', { active: viewMode === 'cards' }]" @click="viewMode = 'cards'">Cards</button>
+        <button :class="['toggle-btn', { active: viewMode === 'table' }]" @click="viewMode = 'table'">Tabela</button>
+      </div>
+    </div>
+    <div v-if="viewMode === 'cards'" class="categories-grid">
       <template v-if="loading">
         <SkeletonCard v-for="i in 6" :key="i" />
       </template>
@@ -23,6 +29,33 @@
         </div>
       </template>
     </div>
+
+    <DataTable
+      v-if="viewMode === 'table'"
+      :columns="tableColumns"
+      :data="pagedData?.items ?? []"
+      v-model:currentPage="tableState.currentPage"
+      v-model:pageSize="tableState.pageSize"
+      v-model:sortBy="tableState.sortBy"
+      v-model:sortDir="tableState.sortDir"
+      v-model:search="tableState.search"
+      :totalCount="pagedData?.totalCount ?? 0"
+      :loading="pagedLoading"
+    >
+      <template #cell-color="{ value }">
+        <span class="color-chip" :style="{ background: value as string }"></span>
+        {{ value }}
+      </template>
+      <template #cell-isActive="{ value }">
+        <span class="status-badge" :class="value ? 'active' : 'inactive'">
+          {{ value ? 'Ativa' : 'Inativa' }}
+        </span>
+      </template>
+      <template #actions="{ row }">
+        <button class="edit-button" style="width: auto; padding: 6px 12px;" @click="editCategory(row)">Editar</button>
+      </template>
+    </DataTable>
+
     <CategoryModal :show="showModal" :category="selectedCategory" @close="showModal = false" @save="handleSave" />
   </div>
 </template>
@@ -30,19 +63,33 @@
 <script setup lang="ts">
 import { useApi } from '@/core/composables/useApi';
 import SkeletonCard from '@/shared/components/SkeletonCard.vue';
-import { onMounted, ref } from 'vue';
+import { onMounted, reactive, ref, watch } from 'vue';
 import { toast } from 'vue-sonner';
 import CategoryModal from '../components/CategoryModal.vue';
+import DataTable from '@/shared/components/DataTable.vue';
+import type { ColumnDef } from '@/shared/components/DataTable.vue';
+import type { PagedResponse } from '@/shared/types/paged.types';
 import { categoryService } from '../services/category.service';
 import type {
   CategoryResponse,
   CreateCategoryRequest,
   UpdateCategoryRequest,
 } from '../types/category.types';
+import { TransactionType } from '@/modules/transactions/types/transaction.types';
+import { formatCategoryType } from '@/shared/utils/formatters';
 
 const categories = ref<CategoryResponse[]>([]);
 const showModal = ref(false);
 const selectedCategory = ref<CategoryResponse | null>(null);
+const viewMode = ref<'cards' | 'table'>('cards');
+const tableState = reactive({
+  currentPage: 1,
+  pageSize: 10,
+  sortBy: 'name',
+  sortDir: 'asc' as 'asc' | 'desc',
+  search: '',
+});
+const pagedData = ref<PagedResponse<CategoryResponse> | null>(null);
 
 const {
   execute: getCategories,
@@ -64,6 +111,38 @@ const {
 } = useApi<CategoryResponse, UpdateCategoryRequest>((category: UpdateCategoryRequest) =>
   categoryService.update(category.id, category),
 );
+
+const {
+  execute: executeGetPaged,
+  data: pagedCategoriesData,
+  loading: pagedLoading,
+} = useApi<PagedResponse<CategoryResponse>>(() =>
+  categoryService.getPaged({
+    page: tableState.currentPage,
+    pageSize: tableState.pageSize,
+    search: tableState.search,
+    sortBy: tableState.sortBy,
+    sortDir: tableState.sortDir,
+  }),
+);
+
+const fetchPaged = async () => {
+  await executeGetPaged();
+  if (pagedCategoriesData.value) pagedData.value = pagedCategoriesData.value;
+};
+
+watch(viewMode, (mode) => {
+  if (mode === 'table') fetchPaged();
+});
+
+watch(tableState, fetchPaged, { deep: true });
+
+const tableColumns: ColumnDef[] = [
+  { key: 'name', label: 'Nome', sortable: true },
+  { key: 'type', label: 'Tipo', sortable: true, format: (v) => formatCategoryType(v as TransactionType) },
+  { key: 'color', label: 'Cor' },
+  { key: 'isActive', label: 'Status', sortable: true },
+];
 
 const handleSave = async (form: CreateCategoryRequest | UpdateCategoryRequest) => {
   if ('id' in form) {
@@ -284,5 +363,52 @@ h1 {
 
 .edit-button:hover {
   background-color: #1d4ed8;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 30px;
+}
+
+.add-button {
+  margin-bottom: 0;
+}
+
+.view-toggle {
+  display: flex;
+  gap: 4px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 4px;
+  margin-left: auto;
+}
+
+.toggle-btn {
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.toggle-btn.active {
+  background: #2563eb;
+  color: white;
+}
+
+.color-chip {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  vertical-align: middle;
+  margin-right: 6px;
+  border: 1px solid rgba(255,255,255,0.2);
 }
 </style>
