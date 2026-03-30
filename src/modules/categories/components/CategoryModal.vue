@@ -10,8 +10,8 @@
         <div class="form-group">
           <label for="type">Tipo:</label>
           <select id="type" v-model="form.type" :disabled="!!category" required>
-            <option value="0">Receita</option>
-            <option value="1">Despesa</option>
+            <option :value="0">Receita</option>
+            <option :value="1">Despesa</option>
           </select>
         </div>
         <div v-if="category" class="form-group status-group">
