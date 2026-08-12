@@ -8,6 +8,19 @@ export interface ErrorResponse {
   type: string
 }
 
+// Formatos de erro que a API pode retornar no corpo (ProblemDetails, erros simples, etc.)
+interface RawErrorBody {
+  detail?: string
+  message?: string
+  error?: string
+  title?: string
+  status?: string | number
+  type?: string
+}
+
+const extractDetail = (body: RawErrorBody): string | undefined =>
+  body.detail ?? body.message ?? body.error ?? body.title
+
 export function useApi<T, P = void>(apiCall: (params: P) => Promise<T>) {
   const loading = ref(false)
   const error = ref<ErrorResponse | null>(null)
@@ -20,17 +33,16 @@ export function useApi<T, P = void>(apiCall: (params: P) => Promise<T>) {
     try {
       data.value = await apiCall(params)
     } catch (err: unknown) {
-      const axiosError = err as AxiosError<ErrorResponse>
+      const axiosError = err as AxiosError<RawErrorBody>
+      const body = axiosError.response?.data
 
-      if (axiosError.response?.data) {
-        error.value = axiosError.response.data
-      } else {
-        error.value = {
-          status: '500',
-          title: 'Erro inesperado',
-          detail: axiosError.message,
-          type: 'unexpected-error',
-        }
+      const detail = (body && extractDetail(body)) ?? axiosError.message
+
+      error.value = {
+        status: String(body?.status ?? axiosError.response?.status ?? '500'),
+        title: body?.title ?? 'Erro inesperado',
+        detail,
+        type: body?.type ?? 'unexpected-error',
       }
     } finally {
       loading.value = false

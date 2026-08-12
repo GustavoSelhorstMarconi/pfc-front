@@ -16,6 +16,16 @@
       <template v-else>
         <div v-for="category in categories" :key="category.id" class="category-card"
           :style="getGradient(category.color)">
+          <button class="delete-icon-button" title="Excluir categoria" @click="askDelete(category.id)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 6h18" />
+              <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+              <path d="M10 11v6" />
+              <path d="M14 11v6" />
+            </svg>
+          </button>
           <h3>{{ category.name }}</h3>
           <div class="category-meta">
             <p>{{ category.type === 0 ? 'Receita' : 'Despesa' }}</p>
@@ -53,10 +63,13 @@
       </template>
       <template #actions="{ row }">
         <button class="edit-button" style="width: auto; padding: 6px 12px;" @click="editCategory(row)">Editar</button>
+        <button class="delete-button" style="width: auto; padding: 6px 12px; margin-left: 6px;" @click="askDelete(row.id)">Excluir</button>
       </template>
     </DataTable>
 
     <CategoryModal :show="showModal" :category="selectedCategory" @close="showModal = false" @save="handleSave" />
+    <ConfirmModal :show="showDeleteModal" title="Excluir categoria" message="Esta ação não pode ser desfeita."
+      @cancel="showDeleteModal = false" @confirm="confirmDelete" />
   </div>
 </template>
 
@@ -66,6 +79,7 @@ import SkeletonCard from '@/shared/components/SkeletonCard.vue';
 import { onMounted, reactive, ref, watch } from 'vue';
 import { toast } from 'vue-sonner';
 import CategoryModal from '../components/CategoryModal.vue';
+import ConfirmModal from '@/shared/components/ConfirmModal.vue';
 import DataTable from '@/shared/components/DataTable.vue';
 import type { ColumnDef } from '@/shared/components/DataTable.vue';
 import type { PagedResponse } from '@/shared/types/paged.types';
@@ -81,6 +95,8 @@ import { formatCategoryType } from '@/shared/utils/formatters';
 const categories = ref<CategoryResponse[]>([]);
 const showModal = ref(false);
 const selectedCategory = ref<CategoryResponse | null>(null);
+const showDeleteModal = ref(false);
+const categoryToDelete = ref<string | null>(null);
 const viewMode = ref<'cards' | 'table'>('cards');
 const tableState = reactive({
   currentPage: 1,
@@ -111,6 +127,11 @@ const {
 } = useApi<CategoryResponse, UpdateCategoryRequest>((category: UpdateCategoryRequest) =>
   categoryService.update(category.id, category),
 );
+
+const {
+  execute: deleteCategory,
+  error: errorDeleteCategory,
+} = useApi<void, string>((id: string) => categoryService.delete(id));
 
 const {
   execute: executeGetPaged,
@@ -190,6 +211,29 @@ const handleGetCategories = async () => {
     toast.error(
       'Erro ao carregar categorias: ' + (errorGetCategories.value?.detail ?? 'Erro desconhecido'),
     );
+  }
+};
+
+const askDelete = (id: string) => {
+  categoryToDelete.value = id;
+  showDeleteModal.value = true;
+};
+
+const confirmDelete = async () => {
+  if (!categoryToDelete.value) return;
+
+  await deleteCategory(categoryToDelete.value);
+
+  if (errorDeleteCategory.value) {
+    toast.error(
+      'Erro ao excluir categoria: ' + (errorDeleteCategory.value?.detail ?? 'Erro desconhecido'),
+    );
+  } else {
+    toast.success('Categoria excluída!');
+    showDeleteModal.value = false;
+    categoryToDelete.value = null;
+    await handleGetCategories();
+    if (viewMode.value === 'table') await fetchPaged();
   }
 };
 
@@ -363,6 +407,45 @@ h1 {
 
 .edit-button:hover {
   background-color: #1d4ed8;
+}
+
+.delete-icon-button {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.25);
+  color: white;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.delete-icon-button:hover {
+  background-color: #ef4444;
+}
+
+.delete-button {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background-color: rgba(239, 68, 68, 0.15);
+  color: white;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.delete-button:hover {
+  background-color: #dc2626;
 }
 
 .header-actions {
